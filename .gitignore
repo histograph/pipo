@@ -1,0 +1,12 @@
+.idea
+.DS_Store
+*.DS_Store
+/app/config/parameters.php
+/app/storage/cache/*
+/app/storage/doctrine/*
+/app/storage/log/*
+/app/storage/uploads/*
+/vendor/
+composer.phar
+
+tests/_output/*
