@@ -1,3 +1,4 @@
+
 Pipo - Pit Importer Part One
  
 The tool to create valid ndjson files to upload to the Histograph Core
@@ -20,4 +21,3 @@ The tool to create valid ndjson files to upload to the Histograph Core
 If the last step failed do this manually:
     `sudo chmod 777 app/storage/cache app/storage/log app/storage/uploads`
 8. On going to production; change the run mode in `/web/index.php` to use the http_cache 
-
