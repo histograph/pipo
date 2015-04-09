@@ -1,0 +1,29 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+
+            <div id="resultnav">
+                {% set cur = 'describe' %}
+                {% include 'datasets/tabnavs.twig' %}
+            </div>
+
+            <h1>Describe dataset '{{ set.name }}'</h1>
+
+            {% form_theme form 'bootstrap_3_layout.html.twig' %}
+            
+            {{ form_start(form) }}
+            {{ form_widget(form) }}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">save description</button>
+            </div>
+            {{ form_end(form) }}
+
+        </div>
+    </div>
+
+
+
+{% endblock %}

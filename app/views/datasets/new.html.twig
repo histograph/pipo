@@ -1,0 +1,26 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+
+            <h1>New dataset</h1>
+
+            <p>Name the new dataset and provide a recognizable id.</p>
+
+            {% form_theme form 'bootstrap_3_layout.html.twig' %}
+            
+            {{ form_start(form) }}
+            {{ form_widget(form) }}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">create dataset</button>
+            </div>
+            {{ form_end(form) }}
+
+        </div>
+    </div>
+
+
+
+{% endblock %}

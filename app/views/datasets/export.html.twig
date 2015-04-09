@@ -1,0 +1,21 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+
+            <div id="resultnav">
+                {% set cur = 'export' %}
+                {% include 'datasets/tabnavs.twig' %}
+            </div>
+
+            <h1>Export dataset '{{ set.name }}'</h1>
+
+            
+
+        </div>
+    </div>
+
+
+
+{% endblock %}

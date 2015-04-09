@@ -12,11 +12,8 @@
                 <table class="table table-striped table-bordered table-hover">
                     <thead>
                     <tr>
-                        <th>#</th>
+                        <th>Id</th>
                         <th>Naam</th>
-                        <th>Bestandsnaam</th>
-                        <th>Aangemaakt</th>
-                        <th>Status</th>
                         <th>Opties</th>
                     </tr>
                     </thead>
@@ -25,18 +22,8 @@
                         <tr>
                             <td>{{ set.id }}</td>
                             <td>{{ set.name }}</td>
-                            <td>{{ set.original_name }}</td>
-                            <td>{{ set.created_on|date('d-m-Y') }}</td>
                             <td>
-                                {% if set.status == 2 %}
-                                    {% set statClass = 'label-success' %}
-                                {% else %}
-                                    {% set statClass = 'label-primary' %}
-                                {% endif %}
-                                <span class="label {{ statClass }}">{{ set.status }}</span>
-                            </td>
-                            <td>
-                                <a href="{{ path('dataset-view', {'id': set.id }) }}" class="btn btn-xs btn-success" title="Bekijk de resultaten"><i class="fa fa-search-plus"></i> </a>
+                                <a href="{{ path('dataset-csvs', {'id': set.id }) }}" class="btn btn-xs btn-success" title="Bekijk de resultaten"><i class="fa fa-search-plus"></i> </a>
                                 <a href="{{ path('dataset-map', {'id': set.id }) }}" title="Bekijk of bewerk mapping" class="btn btn-xs btn-primary"><i class="fa fa-pencil"></i> </a>
                                 <a href="{{ path('dataset-delete', { 'id': set.id }) }}" title="Verwijder de gehele dataset" class="btn btn-xs btn-danger delete"><i class="fa fa-trash"></i> </a>
                             </td>

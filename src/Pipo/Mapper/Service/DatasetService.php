@@ -29,7 +29,21 @@ class DatasetService {
     public function getDataset($id)
     {
         $stmt = $this->db->executeQuery('SELECT * FROM datasets WHERE id = :id', array(
-            'id' => (int)$id
+            'id' => (string)$id
+        ));
+        return $stmt->fetch();
+    }
+
+    /**
+     * Fetch a dataset by id
+     * @param $id
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getCsvs($id)
+    {
+        $stmt = $this->db->executeQuery('SELECT * FROM csvfiles WHERE dataset_id = :id', array(
+            'id' => (string)$id
         ));
         return $stmt->fetch();
     }

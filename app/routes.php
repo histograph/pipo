@@ -5,19 +5,9 @@
  *
  */
 
-// homepage
-$app->get('/', function () use ($app) {
-    return $app['twig']->render('home.html.twig');
-});
-
-//upload
-$app->get('/upload', function () use ($app) {
-    return $app['twig']->render('upload.html.twig');
-})->bind('upload');
-
 
 // a complete set of routes
-$app->mount('/datasets', new \Pipo\Mapper\Provider\DataSetControllerProvider());
+$app->mount('/', new \Pipo\Mapper\Provider\DataSetControllerProvider());
 
 // Error route
 $app->error(function (\Exception $e, $code) use ($app) {

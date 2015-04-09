@@ -1,0 +1,21 @@
+{% extends "layout.html.twig" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-md-12">
+
+            <div id="resultnav">
+                {% set cur = 'map' %}
+                {% include 'datasets/tabnavs.twig' %}
+            </div>
+
+            <h1>Map dataset '{{ set.name }}'</h1>
+
+            
+
+        </div>
+    </div>
+
+
+
+{% endblock %}
