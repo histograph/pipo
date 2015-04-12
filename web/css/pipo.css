@@ -5,18 +5,22 @@
 
 
 body{
-	background-color: #eeeeee;
+	background-color: #E9ECFF;
+	color:#8F8891;
 }
 ul{
 	padding-left: 20px;}
-h1,h2,h3{
+h1,h2,h3,.navbar-default, label, .btn{
 	font-family: 'Roboto Slab', serif;
 }
 h1{
 	margin-bottom: 24px;
 }
+.col-md-8{
+	padding-top: 24px;
+}
 a{
-	color: #638197;
+	color: #6D658C;
 }
 p {margin-top: 8px;}
 
@@ -28,22 +32,27 @@ p {margin-top: 8px;}
 	font-family: 'Roboto Slab', serif;
 	display: inline-block;
 	padding: 0 20px 5px 20px;
-	border-bottom: 2px solid #638197;
+	border-bottom: 2px solid #6D658C;
 	margin: 0;
 	text-decoration: none;
-	color: #bfd2dd;
+	color: #C1B8C3;
 }
 #resultnav a.current{
-	color: #638197;
+	color: #6D658C;
 }
 .navbar-default{
-	background-color: #bfd2dd;
+	background-color: #6D658C;
+}
+.navbar-default .navbar-nav>li>a, .navbar-default .navbar-brand{
+	color: #fff;
 }
 .btn-default{
 	margin-bottom: 8px;
 }
 .btn-primary{
-	background-color: #638197;
+	background-color: #6D658C;
+	border-color: #6D658C;
+	font-weight: bold;
 }
 .btn-sm{
 	font-size: 13px;
@@ -51,69 +60,17 @@ p {margin-top: 8px;}
 	margin-top: 0;
 	height: 30px;
 }
+label, th{
+	color: #C1B8C3;
+}
+textarea.form-control{
+	height: 160px;
+}
 .form-control{
 	padding: 3px 10px;
 	height: 30px;
 }
-.container .jumbotron{
-	color: #fff;
-	padding-top: 10px;
-	padding-bottom: 20px;
-	border-radius: 24px;
-}
-.jumbotron li{
-	font-size: 18px;
-}
-.jumbotron .btn-primary, .downloadbutton{
-	font-size: 20px;
-	margin-top: 30px;
-	margin-left: 120px;
-	background-color: #ae3342;
-	border:none;
-	padding: 20px;
-	border-radius: 12px;
-	font-family: 'Roboto Slab', serif;
-}
 
 .table>thead>tr>th, .table>tbody>tr>th{
 	border-top: none;
-}
-.downloadbutton{
-	margin-left: 0px;
-	margin-top: 100px;
-}
-#mapcanvas{
-	width: 100%;
-	height: 400px;
-	background-color: #bfd2dd;
-}
-.form-actions{
-	margin-top: 40px;
-}
-.possibilities{
-	padding-left: 0;
-	list-style-type: none;
-
-
-}
-.possibilities li{
-	background-color: #fff;
-	padding: 10px;
-	margin-bottom: 10px;
-	min-height: 50px;
-}
-.possibilities li button{
-	float: right;
-}
-.ajax-fb {
-	top: 50px;
-	font-size: 1.2em;
-	margin-top: 0;
-	padding: 1em 1.3em;
-	position: fixed;
-	right: 0;
-	z-index: 2000;
-}
-.no-pad {
-    margin: 0; padding: 0;
 }

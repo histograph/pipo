@@ -76,9 +76,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 'id'      => $data['id'],
                 'name'      => $data['name']
             ));
-            $datasetId = $db->lastInsertId();
 
-            return $app->redirect($app['url_generator']->generate('dataset-view', array('id' => $datasetId)));
+
+            return $app->redirect($app['url_generator']->generate('dataset-describe', array('id' => $data['id'])));
         }
 
         // of toon errors:
@@ -177,8 +177,84 @@ class DataSetControllerProvider implements ControllerProviderInterface
     {
         $dataset = $app['dataset_service']->getDataset($id);
         $csvs = $app['dataset_service']->getCsvs($id);
+        $form = $this->getUploadForm($app);
 
-        return $app['twig']->render('datasets/csvs.html.twig', array('set' => $dataset, 'csvs' => $csvs));
+        return $app['twig']->render('datasets/csvs.html.twig', array(
+            'set' => $dataset, 
+            'csvs' => $csvs,
+            'form' => $form->createView()
+            ));
+    }
+
+    /**
+     *
+     * @param Application $app
+     * @param Request $request
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function handleCsvUpload(Application $app, Request $request, $id)
+    {
+        $form = $this->getUploadForm($app);
+        $form->bind($request);
+        if ($form->isValid()) {
+            $files = $request->files->get($form->getName());
+
+            $filename = time(). '.csv';
+            $originalName = $files['csvFile']->getClientOriginalName();
+            $files['csvFile']->move($app['upload_dir'], $filename);
+
+            $data = $form->getData();
+            $date = new \DateTime('now');
+
+            /** @var \Doctrine\DBAL\Connection $db */
+            $db = $app['db'];
+            $db->insert('csvfiles', array(
+                'filename'          => $filename,
+                'dataset_id'          => $id,
+                'created_on' => $date->format('Y-m-d H:i:s')
+            ));
+            $datasetId = $db->lastInsertId();
+            if (!$datasetId) {
+                $app['session']->getFlashBag()->set('error', 'Sorry er is iets fout gegaan met opslaan.');
+            } else {
+                $app['session']->getFlashBag()->set('alert', 'Het bestand is opgeslagen!');
+            }
+
+            return $app->redirect($app['url_generator']->generate('dataset-csvs', array('id' => $id)));
+        }
+
+        // of toon errors:
+        return $app['twig']->render('import/uploadform.html.twig', array(
+            'form' => $form->createView()
+        ));
+    }
+
+
+    /**
+     * Form for csv file uploads
+     *
+     * @param Application $app
+     * @return mixed
+     */
+    private function getUploadForm(Application $app) {
+        $form = $app['form.factory']
+            ->createBuilder('form')
+
+            ->add('csvFile', 'file', array(
+                'label'     => 'Select a csvfile for upload',
+                'required'  => true,
+                'constraints' =>  array(
+                    new Assert\NotBlank(),
+                    new Assert\File(array(
+                        'maxSize'       => '4096k',
+                        'mimeTypes'     => array('text/csv', 'text/plain'),
+                    )),
+                    new Assert\Type('file')
+                )
+            ))
+            ->getForm()
+        ;
+        return $form;
     }
 
     /**
@@ -218,30 +294,23 @@ class DataSetControllerProvider implements ControllerProviderInterface
      * @param Request $request
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function saveDescription(Application $app, Request $request)
+    public function saveDescription(Application $app, $id)
     {
-        $form = $this->getDescriptionForm($app);
-        $form->bind($request);
-        if ($form->isValid()) {
-            
-            $data = $form->getData();
-            $date = new \DateTime('now');
+        $data = $_POST['form'];
+        unset($data['_token']);
 
-            /** @var \Doctrine\DBAL\Connection $db */
-            $db = $app['db'];
-            $db->update('datasets', array(
-                'id'      => $data['id'],
-                'name'      => $data['name']
-            ));
-            $datasetId = $db->lastInsertId();
+        if ($app['dataset_service']->storeDescription($data)) { 
 
-            return $app->redirect($app['url_generator']->generate('dataset-describe', array('id' => $datasetId)));
+            $app['session']->getFlashBag()->set('alert', 'Description has been saved!');
+            return $app->redirect($app['url_generator']->generate('dataset-describe', array('id' => $id)));
+        
+        }else{
+
+            $app['session']->getFlashBag()->set('error', 'Sorry, but the update wasn\'t succesful');
+            return $app->redirect($app['url_generator']->generate('dataset-describe', array('id' => $id)));
+
         }
-
-        // of toon errors:
-        return $app['twig']->render('datasets/new.html.twig', array(
-            'form' => $form->createView()
-        ));
+        
     }
 
     /**
@@ -251,11 +320,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
      * @return mixed
      */
     private function getDescriptionForm(Application $app, $dataset) {
+        
         $form = $app['form.factory']
-            ->createBuilder('form')
+            ->createBuilder('form',$dataset)
 
-            ->add('id', 'text', array(
-                'label'         => 'Dataset id, preferably a recognizable string (name, abbreviation or acronym)',
+            ->add('id', 'hidden', array(
                 'required'  => true,
                 'data' => $dataset['id'],
                 'constraints' =>  array(
@@ -313,6 +382,26 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     )),
                     new Assert\Length(array('min' => 1, 'max' => 123))
                 )
+            ))
+            ->add('license', 'text', array(
+                'label'         => 'License',
+                'data' => $dataset['license']
+            ))
+            ->add('website', 'text', array(
+                'label'         => 'Website with information on dataset',
+                'data' => $dataset['website']
+            ))
+            ->add('period', 'text', array(
+                'label'         => 'Period, preferably year range "1600-1800"',
+                'data' => $dataset['period']
+            ))
+            ->add('editor', 'text', array(
+                'label'         => 'Data-editor',
+                'data' => $dataset['editor']
+            ))
+            ->add('edits', 'textarea', array(
+                'label'         => 'Data-edits',
+                'data' => $dataset['edits']
             ))
             ->getForm()
         ;

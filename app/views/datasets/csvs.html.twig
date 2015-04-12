@@ -1,37 +1,62 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-12">
 
-            <div id="resultnav">
-                {% set cur = 'csvs' %}
-                {% include 'datasets/tabnavs.twig' %}
-            </div>
+    <div id="resultnav">
+        {% set cur = 'csvs' %}
+        {% include 'datasets/tabnavs.twig' %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>Use</th>
+                    <th>Name</th>
+                    <th>Uploaded on</th>
+                    <th>Delete?</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for csv in csvs %}
+                    <tr>
+                        <td><input type="radio" name="csvselector" value="{{ csv.id }}" class="selectCsv" /></td>
+                        <td>{{ csv.filename }}</td>
+                        <td>{{ csv.created_on }}</td>
+                        <td>
+                            <a href="{{ path('dataset-delete', { 'id': csv.id }) }}" title="Verwijder de gehele dataset" class="btn btn-xs btn-danger delete"><i class="fa fa-trash"></i> </a>
+                        </td>
+                    </tr>
+
+                {% endfor %}
+                </tbody>
+            </table>
+
+        </div>
+
+
+        <div class="col-md-4">
 
             <h1>Csv files dataset '{{ set.name }}'</h1>
 
-            <table class="table table-striped table-bordered table-hover">
-            <thead>
-            <tr>
-                <th>Use</th>
-                <th>Name</th>
-                <th>Uploaded on</th>
-                <th>Delete?</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for csv in csvs %}
-                <tr>
-                    <td><input type="radio" name="csvselector" value="{{ csv.id }}" class="selectCsv"></td>
-                    <td>{{ csv.filename }}</td>
-                    <td>{{ csv.uploaded }}</td>
-                    <td>
-                        <a href="{{ path('dataset-delete', { 'id': set.id }) }}" title="Verwijder de gehele dataset" class="btn btn-xs btn-danger delete"><i class="fa fa-trash"></i> </a>
-                    </td>
-                </tr>
+            <ul>
+                <li>Remember to provide a field with permanent id's for your records!</li>
+                <li>Please use comma's for separators</li>
+            </ul>
 
-            {% endfor %}
+
+            {% form_theme form 'bootstrap_3_layout.html.twig' %}
+
+            {{ form_start(form) }}
+            {{ form_widget(form) }}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Upload new csv</button>
+            </div>
+            {{ form_end(form) }}
+
 
         </div>
     </div>

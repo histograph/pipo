@@ -1,16 +1,15 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
+    <div id="resultnav">
+        {% set cur = 'describe' %}
+        {% include 'datasets/tabnavs.twig' %}
+    </div>
+
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
 
-            <div id="resultnav">
-                {% set cur = 'describe' %}
-                {% include 'datasets/tabnavs.twig' %}
-            </div>
-
-            <h1>Describe dataset '{{ set.name }}'</h1>
-
+            
             {% form_theme form 'bootstrap_3_layout.html.twig' %}
             
             {{ form_start(form) }}
@@ -20,6 +19,14 @@
                 <button type="submit" class="btn btn-primary">save description</button>
             </div>
             {{ form_end(form) }}
+
+        </div>
+
+        <div class="col-md-4">
+
+            <h1>Describe dataset '{{ set.name }}'</h1>
+
+            <p>Pleas describe the dataset in Dutch.</p>
 
         </div>
     </div>

@@ -35,17 +35,17 @@ class DatasetService {
     }
 
     /**
-     * Fetch a dataset by id
+     * Fetch csvs with dataset
      * @param $id
      * @return mixed
      * @throws \Doctrine\DBAL\DBALException
      */
     public function getCsvs($id)
     {
-        $stmt = $this->db->executeQuery('SELECT * FROM csvfiles WHERE dataset_id = :id', array(
-            'id' => (string)$id
+        $stmt = $this->db->executeQuery('SELECT * FROM csvfiles WHERE dataset_id = :setid ORDER BY created_on DESC', array(
+            'setid' => (string)$id
         ));
-        return $stmt->fetch();
+        return $stmt->fetchAll();
     }
 
     /**
@@ -61,6 +61,21 @@ class DatasetService {
             FROM datasets d");
         $stmt->execute();
         return $stmt->fetchAll(\PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Save the provided mapping or update if it already exists
+     * Also update the status of the dataset to mapped
+     *
+     * @param array $data
+     * @return int
+     */
+    public function storeDescription($data)
+    { 
+
+        return $this->db->update('datasets', $data, array(
+            'id' => $data['id']
+        ));
     }
 
 }
