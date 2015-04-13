@@ -78,4 +78,35 @@ class DatasetService {
         ));
     }
 
+    /**
+     * Fetch a csv by id
+     *
+     * @param $id
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getCsv($id)
+    {
+        $stmt = $this->db->executeQuery('SELECT * FROM csvfiles WHERE id = :id', array(
+            'id' => (string)$id
+        ));
+        return $stmt->fetch();
+    }
+
+    /**
+     * Delete a Csv adn remove the file
+     *
+     * @param $id
+     * @return int
+     * @throws \Doctrine\DBAL\Exception\InvalidArgumentException
+     */
+    public function deleteCsv($id, $uploadDir)
+    {
+        $csv = $this->getCsv($id);
+        $file = $uploadDir . DIRECTORY_SEPARATOR . $csv['filename'];
+        unlink($file);
+
+        return $this->db->delete('csvfiles', array('id' => $id));
+    }
+
 }

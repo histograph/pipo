@@ -62,19 +62,27 @@
     </div>
 </nav>
 
+{% if app.session.flashbag.has('alert') %}
+    {% for flashMessage in app.session.flashbag.get('alert') %}
+        <script>
+            jQuery(function () {
+                alertMessage({{ flashMessage }});
+            }
+        </script>
+    {% endfor %}
+{% endif %}
+
+{% if app.session.flashbag.has('error') %}
+    {% for flashMessage in app.session.flashbag.get('error') %}
+        <script>
+            jQuery(function () {
+                alertMessage({{ flashMessage }}, 'alert-danger');
+            }
+        </script>
+    {% endfor %}
+{% endif %}
+
 <div class="container">
-    {% if app.session.flashbag.has('alert') %}
-        {% for flashMessage in app.session.flashbag.get('alert') %}
-            <div class="alert alert-info">{{ flashMessage }}</div>
-        {% endfor %}
-    {% endif %}
-
-    {% if app.session.flashbag.has('error') %}
-        {% for flashMessage in app.session.flashbag.get('error') %}
-            <div class="alert alert-danger">{{ flashMessage }}</div>
-        {% endfor %}
-    {% endif %}
-
     {% block content %}{% endblock %}
 </div>
 
@@ -92,6 +100,40 @@
             });
         }, 5000);
     }
+
+    /** Wrapper for API calls */
+    function askAPI(type, url, data, callback) {
+        $('#fb').html('');
+        var request = jQuery.ajax({
+            type: type,
+            url: url,
+            data: data,
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            success: function (resp, status, jqXHR) {
+                if (!callback) {
+                    alertMessage(resp.message)
+                } else {
+                    if (resp.data) {
+                        callback(resp.data);
+                    } else { // others simply pass on the data
+                        callback(resp);
+                    }
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+                if (jqXHR.status == 400) {
+                    var answer =  jqXHR.responseJSON;
+                    alertMessage(answer.error, 'alert-danger');
+                } else if (jqXHR.status == 404) {
+                    alertMessage('Requested page not found. [404]', 'alert-danger');
+                } else if (jqXHR.status == 500) {
+                    alertMessage('An internal server error happened...', 'alert-danger');
+                }
+            }
+
+        });
+    };
 
 </script>
 </body>

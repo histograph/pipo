@@ -21,12 +21,12 @@
                 </thead>
                 <tbody>
                 {% for csv in csvs %}
-                    <tr>
+                    <tr id="row_{{ csv.id }}">
                         <td><input type="radio" name="csvselector" value="{{ csv.id }}" class="selectCsv" /></td>
                         <td>{{ csv.filename }}</td>
                         <td>{{ csv.created_on }}</td>
                         <td>
-                            <a href="{{ path('dataset-delete', { 'id': csv.id }) }}" title="Verwijder de gehele dataset" class="btn btn-xs btn-danger delete"><i class="fa fa-trash"></i> </a>
+                            <a href="{{ path('api-delete-csv', { 'id': csv.id }) }}" title="Delete this csv" class="btn btn-xs btn-danger delete-csv"><i class="fa fa-trash"></i> </a>
                         </td>
                     </tr>
 
@@ -57,10 +57,26 @@
             </div>
             {{ form_end(form) }}
 
-
         </div>
     </div>
 
 
+    <script type="text/javascript">
+        jQuery(function () {
+
+            function deleteRow(json) {
+                var tr = '#row_'+json.id;
+                $(tr).remove();
+                alertMessage('The csv was deleted');
+            }
+
+            $('.delete-csv').on('click', function(e) {
+                e.preventDefault();
+                var uri = $(this).attr('href');
+                askAPI('GET', uri, null, deleteRow);
+            });
+
+        });
+    </script>
 
 {% endblock %}

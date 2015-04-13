@@ -14,9 +14,8 @@ class ApiControllerProvider implements ControllerProviderInterface {
     {
         $controllers = $app['controllers_factory'];
 
-        $controllers->get('/record/unmap/{id}', array(new self(), 'clearStandardization'))->bind('api-clear-mapping')->assert('id', '\d+');
-        $controllers->get('/record/map/{id}', array(new self(), 'setStandardization'))->bind('api-set-mapping')->assert('id', '\d+');
-        $controllers->get('/record/ummappable/{id}', array(new self(), 'setUnmappable'))->bind('api-unmappable')->assert('id', '\d+');
+        $controllers->get('/delete-csv/{id}', array(new self(), 'deleteCSV'))->bind('api-delete-csv')->assert('id', '\d+');
+        $controllers->get('/choose-csv/{id}', array(new self(), 'chooseCsv'))->bind('api-choose-csv')->assert('id', '\d+');
 
         $controllers->post('/record/choose-pit/{id}', array(new self(), 'choosePit'))->bind('api-choose-pit')->assert('id', '\d+');
         return $controllers;
@@ -31,11 +30,11 @@ class ApiControllerProvider implements ControllerProviderInterface {
      */
     public function deleteCSV(Application $app, $id)
     {
-        if ($app['dataset_service']->setRecordAsUnmappable($id)){
+        if ($app['dataset_service']->deleteCsv($id, $app['upload_dir'])){
             return $app->json(array('id' => $id));
         }
 
-        return $app->json(array('error' => 'Record could not be updated'), 503);
+        return $app->json(array('error' => 'Csv could not be removed'), 503);
     }
 
     /**

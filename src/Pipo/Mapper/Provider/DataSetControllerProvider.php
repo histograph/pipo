@@ -215,9 +215,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
             ));
             $datasetId = $db->lastInsertId();
             if (!$datasetId) {
-                $app['session']->getFlashBag()->set('error', 'Sorry er is iets fout gegaan met opslaan.');
+                $app['session']->getFlashBag()->set('error', 'Sorry, there was an error during file upload.');
             } else {
-                $app['session']->getFlashBag()->set('alert', 'Het bestand is opgeslagen!');
+                $app['session']->getFlashBag()->set('alert', 'The file was uploaded!');
             }
 
             return $app->redirect($app['url_generator']->generate('dataset-csvs', array('id' => $id)));
