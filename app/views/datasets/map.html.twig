@@ -1,15 +1,100 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
+	<div id="resultnav">
+        {% set cur = 'map' %}
+        {% include 'datasets/tabnavs.twig' %}
+    </div>
     <div class="row">
-        <div class="col-md-12">
+        <div class="col-md-8">
 
-            <div id="resultnav">
-                {% set cur = 'map' %}
-                {% include 'datasets/tabnavs.twig' %}
-            </div>
+            <h3>Properties</h3>
+            
+            <p>Properties are what makes a Pit a Pit. Only name is required.</p>
 
-            <h1>Map dataset '{{ set.name }}'</h1>
+            <table class="map table">
+            	<tr>
+            		<th>name</th>
+            		<td>
+            			<select class="form-control" name="prop-name">
+            				<option>select column</option>
+		        		</select>
+		        	</td>
+            	</tr>
+            	<tr>
+            		<th>geometry</th>
+            		<td>
+            			<select class="form-control" name="prop-geometry">
+            				<option>select column</option>
+		        		</select>
+		        	</td>
+            	</tr>
+            	<tr>
+            		<th>hasBeginning</th>
+            		<td>
+            			<select class="form-control" name="prop-hasBeginning">
+            				<option>select column</option>
+		        		</select>
+		        	</td>
+            	</tr>
+            	<tr>
+            		<th>hasEnd</th>
+            		<td>
+            			<select class="form-control" name="prop-hasEnd">
+            				<option>select column</option>
+		        		</select>
+		        	</td>
+            	</tr>
+            </table>
+        	
+        	<h3>Relations</h3>
+
+           	<p>Relations should be mapped to a fiel containing a field with a uri or with a pit uri from the Erfgeothesaurus</p>
+            
+            <table class="map table">
+			 	<tr>
+            		<th><select class="form-control" name="relation-type[]">
+            				<option>select relation</option>
+            				<option>hg:sameConcept</option>
+            				<option>hg:liesIn</option>
+            				<option>hg:etc</option>
+		        		</select>
+		        	</th>
+            		<td>
+            			<select class="form-control" name="relation-column[]">
+            				<option>select column</option>
+		        		</select>
+		        		<em>or</em>
+		        		<input placeholder="give uri or pit uri for all recs in dataset" class="form-control" type="text" name="data-value[]" />
+		        	</td>
+            	</tr>
+            </table>
+            <button class="btn btn-default"><i class="fa fa-plus-circle"></i></button>
+
+            <h3>Data</h3>
+
+            <p>Data can contain key/value pairs with additional data for your Pit. Just name the key and tell us in which csv column we find the corresponding value.</p>
+
+            <table class="map table">
+            	<tr>
+            		<th>
+            			<input class="form-control" type="text" placeholder="data key name" name="data-name[]" />
+            		</th>
+            		<td>
+            			<select class="form-control" name="data-value[]">
+            				<option>select column</option>
+		        		</select>
+		        	</td>
+            	</tr>
+            </table>
+        	
+            <button class="btn btn-default"><i class="fa fa-plus-circle"></i></button>
+            
+
+        </div>
+        <div class="col-md-4">
+
+            <h1>Map dataset '{{ set.title }}'</h1>
 
             
 

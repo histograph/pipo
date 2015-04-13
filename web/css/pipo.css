@@ -63,6 +63,9 @@ p {margin-top: 8px;}
 label, th{
 	color: #C1B8C3;
 }
+.map th{
+	width: 300px;
+}
 textarea.form-control{
 	height: 160px;
 }
@@ -77,4 +80,7 @@ textarea.noform{
 
 .table>thead>tr>th, .table>tbody>tr>th{
 	border-top: none;
+}
+.map th{
+	width: 300px;
 }
