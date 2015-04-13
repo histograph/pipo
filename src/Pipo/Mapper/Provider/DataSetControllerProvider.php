@@ -36,6 +36,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $controllers->post('/describe/{id}', array(new self(), 'saveDescription'))->bind('dataset-save-description')->assert('id', '\w+');
         $controllers->get('/validate/{id}', array(new self(), 'validateSet'))->bind('dataset-validate')->assert('id', '\w+');
         $controllers->get('/export/{id}', array(new self(), 'exportSet'))->bind('dataset-export')->value('id', null)->assert('id', '\w+');
+        $controllers->get('/exportsource/{id}', array(new self(), 'exportSource'))->bind('dataset-export-source')->value('id', null)->assert('id', '\w+');
+        $controllers->get('/exportrelations/{id}', array(new self(), 'exportRelations'))->bind('dataset-export-relations')->value('id', null)->assert('id', '\w+');
+        $controllers->get('/exportpits/{id}', array(new self(), 'exportPits'))->bind('dataset-export-pits')->value('id', null)->assert('id', '\w+');
+        
+        $controllers->get('/files/{id}/{name}', array(new self(), 'serveFile'))->bind('dataset-serve-file')->value('id', null)->assert('id', '\w+');
 
         $controllers->get('/delete/{id}', array(new self(), 'deleteSet'))->bind('dataset-delete')->assert('id', '\w+');
         return $controllers;
@@ -439,7 +444,88 @@ class DataSetControllerProvider implements ControllerProviderInterface
     public function exportSet(Application $app, $id)
     {
         $dataset = $app['dataset_service']->getDataset($id);
+
+        unset($dataset['use_csv_id']);
+
+        $files = array();
+        if(file_exists($app['export_dir'] . '/' . $id . '/source.json')){
+            $files['source'] = '/files/' . $id . '/source.json';
+        }
+        if(file_exists($app['export_dir'] . '/' . $id . '/pits.ndjson')){
+            $files['pits'] = $app['export_dir'] . '/' . $id . '/pits.ndjson';
+        }
+        if(file_exists($app['export_dir'] . '/' . $id . '/relations.ndjson')){
+            $files['relations'] = $app['export_dir'] . '/' . $id . '/relations.ndjson';
+        }
         
-        return $app['twig']->render('datasets/export.html.twig', array('set' => $dataset));
+
+        return $app['twig']->render('datasets/export.html.twig', array('set' => $dataset, 'files' => $files));
+    }
+
+
+    /**
+     * Show all the details for one dataset
+     *
+     * @param Application $app
+     * @param $id
+     */
+    public function exportSource(Application $app, $id)
+    {
+        $dataset = $app['dataset_service']->getDataset($id);
+        unset($dataset['use_csv_id']);
+
+        $sourcejson = json_encode($dataset);
+
+        $dir = $app['export_dir'] . '/' . $id;
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777);
+        }
+
+        file_put_contents( $dir . '/source.json', $sourcejson);
+        
+        $app['session']->getFlashBag()->set('alert', 'Er is een source.json aangemaakt of overschreven.');
+        
+        return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+    }
+
+    /**
+     * Show all the details for one dataset
+     *
+     * @param Application $app
+     * @param $id
+     */
+    public function exportPits(Application $app, $id)
+    {
+        $dataset = $app['dataset_service']->getDataset($id);
+        unset($dataset['use_csv_id']);
+
+        $sourcejson = json_encode($dataset);
+
+        $dir = $app['export_dir'] . '/' . $id;
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777);
+        }
+
+        file_put_contents( $dir . '/pits.ndjson', $sourcejson);
+        
+        $app['session']->getFlashBag()->set('alert', 'Er is een pits.ndjson aangemaakt of overschreven.');
+        
+        return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+    }
+
+
+    /**
+     * Show all the details for one dataset
+     *
+     * @param Application $app
+     * @param $id
+     */
+    public function serveFile(Application $app, $id, $name)
+    {
+        if(file_exists($app['export_dir'] . '/' . $id . '/' . $name)){
+            header('Content-type:application/json');
+            return file_get_contents($app['export_dir'] . '/' . $id . '/' . $name);
+        }
+
     }
 }

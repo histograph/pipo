@@ -66,6 +66,10 @@ label, th{
 textarea.form-control{
 	height: 160px;
 }
+textarea.noform{
+	margin-top: 10px;
+	margin-bottom: 10px;
+}
 .form-control{
 	padding: 3px 10px;
 	height: 30px;

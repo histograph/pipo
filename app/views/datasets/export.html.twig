@@ -1,13 +1,69 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-    <div class="row">
-        <div class="col-md-12">
 
-            <div id="resultnav">
-                {% set cur = 'export' %}
-                {% include 'datasets/tabnavs.twig' %}
-            </div>
+	<div id="resultnav">
+        {% set cur = 'export' %}
+        {% include 'datasets/tabnavs.twig' %}
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+
+            
+
+            {% if files.source is defined %}
+            	<h3><a href="{{ files.source }}">source.json</a></h3>
+            	
+            	<a href="{{ path('dataset-export-source', { 'id': set.id }) }}" class="btn btn-primary">renew source.json</a>
+
+            	<button class="btn btn-primary">export source.json to Histograph</button>
+           
+        	{% else %}
+
+        		<h3>No source.json yet</h3>
+
+        		<a href="{{ path('dataset-export-source', { 'id': set.id }) }}" class="btn btn-primary">create source.json</a>
+            {% endif %} 
+
+
+            {% if files.pits is defined %}
+            	<h3><a href="{{ files.pits }}">pits.ndjson</a></h3>
+            	
+            	<a href="{{ path('dataset-export-pits', { 'id': set.id }) }}" class="btn btn-primary">renew pits.ndjson</a>
+
+            	<button class="btn btn-primary">export pits.ndjson to Histograph</button>
+           
+        	{% else %}
+
+        		<h3>no pits.ndjson yet</h3>
+
+        		<a href="{{ path('dataset-export-pits', { 'id': set.id }) }}" class="btn btn-primary">create pits.ndjson</a>
+            {% endif %} 
+
+
+
+
+            {% if files.relations is defined %}
+            	<h3><a href="{{ files.relations }}">relations.ndjson</a></h3>
+            	
+            	<a href="{{ path('dataset-export-relations', { 'id': set.id }) }}" class="btn btn-primary">renew relations.ndjson</a>
+
+            	<button class="btn btn-primary">export relations.ndjson to Histograph</button>
+           
+        	{% else %}
+
+        		<h3>no relations.ndjson yet</h3>
+
+        		<a href="{{ path('dataset-export-relations', { 'id': set.id }) }}" class="btn btn-primary">create relations.ndjson</a>
+            {% endif %} 
+
+            
+            
+            
+
+        </div>
+        <div class="col-md-4">
 
             <h1>Export dataset '{{ set.name }}'</h1>
 
