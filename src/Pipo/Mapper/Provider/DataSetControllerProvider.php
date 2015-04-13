@@ -43,6 +43,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $controllers->get('/files/{id}/{name}', array(new self(), 'serveFile'))->bind('dataset-serve-file')->value('id', null)->assert('id', '\w+');
 
         $controllers->get('/delete/{id}', array(new self(), 'deleteSet'))->bind('dataset-delete')->assert('id', '\w+');
+
+        $controllers->get('/postsource/{id}', array(new self(), 'postSet'))->bind('dataset-post-source')->assert('id', '\w+');
         return $controllers;
     }
 
@@ -296,8 +298,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
      * Save description
      *
      * @param Application $app
-     * @param Request $request
+     * @param $id
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     * @internal param Request $request
      */
     public function saveDescription(Application $app, $id)
     {
@@ -415,11 +418,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
     }
 
 
-
-
-
-
-
     /**
      * Show all the details for one dataset
      *
@@ -434,7 +432,17 @@ class DataSetControllerProvider implements ControllerProviderInterface
         return $app['twig']->render('datasets/validate.html.twig', array('set' => $dataset));
     }
 
-
+    /**
+     * Post the set to the histograph API
+     *
+     * @param Application $app
+     * @param $id
+     */
+    public function postSet(Application $app, $id)
+    {
+        // TODO get the contents of the file or something
+        $app['histograph_service']->createNewHistographSource('ddd');
+    }
 
     /**
      * Show all the details for one dataset
@@ -469,6 +477,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
      *
      * @param Application $app
      * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function exportSource(Application $app, $id)
     {
@@ -494,6 +503,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
      *
      * @param Application $app
      * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
     public function exportPits(Application $app, $id)
     {
@@ -520,6 +530,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
      *
      * @param Application $app
      * @param $id
+     * @return string
      */
     public function serveFile(Application $app, $id, $name)
     {

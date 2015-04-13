@@ -8,6 +8,9 @@
 $app['dataset_service'] = $app->share(function ($app) {
     return new \Pipo\Mapper\Service\DatasetService($app['db']);
 });
+$app['histograph_service'] = $app->share(function ($app) {
+    return new \Pipo\Mapper\Service\HistographService($app);
+});
 
 
 // TWIG

@@ -4,6 +4,9 @@
 $app['sitename'] = 'Histograph - Pit Importer Part One';
 $app['upload_dir'] = __DIR__ . '/../storage/uploads';
 $app['export_dir'] = __DIR__ . '/../storage/exports';
+$app['api_user'] = 'geo-user';
+$app['api_pass'] = 'xxxxxxyyz';
+
 
 // FOR DEVELOPMENT
 $app['debug'] = true;

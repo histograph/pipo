@@ -10,14 +10,12 @@
     <div class="row">
         <div class="col-md-8">
 
-            
-
             {% if files.source is defined %}
             	<h3><a href="{{ files.source }}">source.json</a></h3>
             	
             	<a href="{{ path('dataset-export-source', { 'id': set.id }) }}" class="btn btn-primary">renew source.json</a>
 
-            	<button class="btn btn-primary">export source.json to Histograph</button>
+                <a href="{{ path('dataset-post-source', { 'id': set.id }) }}" class="btn btn-primary">export source.json to Histograph</a>
            
         	{% else %}
 
