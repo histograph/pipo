@@ -19,14 +19,24 @@
                     <th>Delete?</th>
                 </tr>
                 </thead>
+
                 <tbody>
                 {% for csv in csvs %}
                     <tr id="row_{{ csv.id }}">
-                        <td><input type="radio" name="csvselector" value="{{ csv.id }}" class="selectCsv" /></td>
+                        <td class="choose">
+                            {% if csv.use_csv_id == csv.id %}
+                                <a href="{{ path('api-choose-csv', { 'id': csv.id, datasetId: set.id }) }}"
+                                   title="Use this csv!" class="btn btn-xs btn-primary select-csv"><i class="fa fa-check-square"></i></a>
+                            {% else %}
+                            <a href="{{ path('api-choose-csv', { 'id': csv.id, datasetId: set.id }) }}"
+                               title="Use this csv!" class="btn btn-xs btn-primary select-csv"><i class="fa fa-square-o"></i></a>
+                            {% endif %}
+                        </td>
                         <td>{{ csv.filename }}</td>
                         <td>{{ csv.created_on }}</td>
                         <td>
-                            <a href="{{ path('api-delete-csv', { 'id': csv.id }) }}" title="Delete this csv" class="btn btn-xs btn-danger delete-csv"><i class="fa fa-trash"></i> </a>
+                            <a href="{{ path('api-delete-csv', { 'id': csv.id }) }}" title="Delete this csv"
+                               class="btn btn-xs btn-danger delete-csv"><i class="fa fa-trash"></i> </a>
                         </td>
                     </tr>
 
@@ -64,16 +74,25 @@
     <script type="text/javascript">
         jQuery(function () {
 
-            function deleteRow(json) {
-                var tr = '#row_'+json.id;
-                $(tr).remove();
-                alertMessage('The csv was deleted');
-            }
-
             $('.delete-csv').on('click', function(e) {
                 e.preventDefault();
                 var uri = $(this).attr('href');
-                askAPI('GET', uri, null, deleteRow);
+                askAPI('GET', uri, null, function(json){
+                    var tr = '#row_'+json.id;
+                    $(tr).remove();
+                    alertMessage('The csv was deleted');
+                });
+            });
+
+            $('.select-csv').on('click', function(e) {
+                e.preventDefault();
+                var uri = $(this).attr('href');
+                askAPI('GET', uri, null, function(json) {
+                    var tr = '#row_'+json.id;
+                    $('table .choose').find('i').attr('class','fa fa-square-o');
+                    $(tr+' .choose').find('i').attr('class','fa fa-check-square');
+                    alertMessage('The csv was selected');
+                });
             });
 
         });

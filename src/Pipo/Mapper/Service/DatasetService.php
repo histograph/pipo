@@ -42,7 +42,11 @@ class DatasetService {
      */
     public function getCsvs($id)
     {
-        $stmt = $this->db->executeQuery('SELECT * FROM csvfiles WHERE dataset_id = :setid ORDER BY created_on DESC', array(
+        $stmt = $this->db->executeQuery('
+          SELECT c.*, d.use_csv_id FROM csvfiles c
+          INNER JOIN datasets d ON d.id = c.dataset_id
+          WHERE dataset_id = :setid ORDER BY created_on DESC
+          ', array(
             'setid' => (string)$id
         ));
         return $stmt->fetchAll();
@@ -107,6 +111,20 @@ class DatasetService {
         unlink($file);
 
         return $this->db->delete('csvfiles', array('id' => $id));
+    }
+
+    /**
+     * Set a particular csv to use for the dataset
+     *
+     * @param $id
+     * @param $datasetId
+     * @return int
+     */
+    public function chooseCsv($id, $datasetId)
+    {
+        return $this->db->update('datasets', array('use_csv_id' => $id), array(
+            'id' => $datasetId
+        ));
     }
 
 }

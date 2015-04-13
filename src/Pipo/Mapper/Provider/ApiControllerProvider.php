@@ -15,10 +15,30 @@ class ApiControllerProvider implements ControllerProviderInterface {
         $controllers = $app['controllers_factory'];
 
         $controllers->get('/delete-csv/{id}', array(new self(), 'deleteCSV'))->bind('api-delete-csv')->assert('id', '\d+');
-        $controllers->get('/choose-csv/{id}', array(new self(), 'chooseCsv'))->bind('api-choose-csv')->assert('id', '\d+');
+        $controllers->get('/choose-csv/{id}/{datasetId}', array(new self(), 'chooseCsv'))
+            ->bind('api-choose-csv')
+            ->assert('id', '\d+')
+            ->assert('datasetId', '\w+');
 
-        $controllers->post('/record/choose-pit/{id}', array(new self(), 'choosePit'))->bind('api-choose-pit')->assert('id', '\d+');
+        //$controllers->post('/record/choose-pit/{id}', array(new self(), 'choosePit'))->bind('api-choose-pit')->assert('id', '\d+');
         return $controllers;
+    }
+
+
+    /**
+     * Select the csv to use for a dataset
+     *
+     * @param Application $app
+     * @param integer $id
+     * @return \Symfony\Component\HttpFoundation\JsonResponse
+     */
+    public function chooseCSV(Application $app, $id, $datasetId)
+    {
+        if ($app['dataset_service']->chooseCsv($id, $datasetId)){
+            return $app->json(array('id' => $id));
+        }
+
+        return $app->json(array('error' => 'Csv could not be used'), 503);
     }
 
     /**
