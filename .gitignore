@@ -3,7 +3,7 @@
 *.DS_Store
 /app/config/parameters.php
 /app/storage/cache/*
-/app/storage/doctrine/*
+/app/storage/exports/*
 /app/storage/log/*
 /app/storage/uploads/*
 /vendor/

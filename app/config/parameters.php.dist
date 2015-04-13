@@ -3,6 +3,7 @@
 // SITE configs
 $app['sitename'] = 'Histograph - Pit Importer Part One';
 $app['upload_dir'] = __DIR__ . '/../storage/uploads';
+$app['export_dir'] = __DIR__ . '/../storage/exports';
 
 // FOR DEVELOPMENT
 $app['debug'] = true;
