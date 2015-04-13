@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Machine: localhost
--- Gegenereerd op: 13 apr 2015 om 11:58
+-- Gegenereerd op: 13 apr 2015 om 15:26
 -- Serverversie: 5.5.38
 -- PHP-versie: 5.6.2
 
@@ -35,15 +35,15 @@ CREATE TABLE `csvfiles` (
 
 CREATE TABLE `datasets` (
   `id` varchar(255) NOT NULL,
-  `name` varchar(255) NOT NULL,
+  `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
   `license` varchar(255) NOT NULL,
   `author` text NOT NULL,
   `website` varchar(255) NOT NULL,
-  `period` varchar(255) NOT NULL,
   `edits` text NOT NULL,
   `editor` varchar(255) NOT NULL,
-  `use_csv_id` int(11) NOT NULL
+  `use_csv_id` int(11) NOT NULL,
+  `sourceCreationDate` date NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
