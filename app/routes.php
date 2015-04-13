@@ -5,9 +5,9 @@
  *
  */
 
-
 // a complete set of routes
 $app->mount('/', new \Pipo\Mapper\Provider\DataSetControllerProvider());
+$app->mount('/api', new \Pipo\Mapper\Provider\ApiControllerProvider());
 
 // Error route
 $app->error(function (\Exception $e, $code) use ($app) {
