@@ -3,18 +3,12 @@
 -- http://www.phpmyadmin.net
 --
 -- Machine: localhost
--- Gegenereerd op: 08 apr 2015 om 14:33
+-- Gegenereerd op: 13 apr 2015 om 11:48
 -- Serverversie: 5.5.38
 -- PHP-versie: 5.6.2
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
-
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
-/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
-/*!40101 SET NAMES utf8 */;
 
 --
 -- Databank: `erfgoedenlocatie_pipo`
@@ -28,10 +22,11 @@ SET time_zone = "+00:00";
 
 CREATE TABLE `csvfiles` (
 `id` int(11) NOT NULL,
+  `dataset_id` varchar(255) NOT NULL,
   `filename` varchar(255) NOT NULL,
-  `filepath` varchar(255) NOT NULL,
+  `created_on` datetime NOT NULL,
   `uploaded` date NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
 
@@ -46,7 +41,7 @@ CREATE TABLE `datasets` (
   `license` varchar(255) NOT NULL,
   `author` text NOT NULL,
   `website` varchar(255) NOT NULL,
-  `periode` varchar(255) NOT NULL,
+  `period` varchar(255) NOT NULL,
   `edits` text NOT NULL,
   `editor` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
@@ -96,12 +91,9 @@ ALTER TABLE `fieldmappings`
 -- AUTO_INCREMENT voor een tabel `csvfiles`
 --
 ALTER TABLE `csvfiles`
-MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
+MODIFY `id` int(11) NOT NULL AUTO_INCREMENT,AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT voor een tabel `fieldmappings`
 --
 ALTER TABLE `fieldmappings`
 MODIFY `id` int(11) NOT NULL AUTO_INCREMENT;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
