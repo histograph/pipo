@@ -9,7 +9,7 @@ class Composer
      */
     private static $storageDirs = array(
         'app/storage/cache',
-        'app/storage/doctrine',
+        'app/storage/exports',
         'app/storage/log',
         'app/storage/uploads',
     );
