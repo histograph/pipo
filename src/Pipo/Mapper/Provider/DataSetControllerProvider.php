@@ -398,7 +398,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
             ))
             ->add('sourceCreationDate', 'text', array(
                 'label'         => 'Source creation date (hasBeginning and hasEnd will be calculated from pits)',
-                'data' => $dataset['sourceCreationDate']
+                'data' => $dataset['sourceCreationDate'],
+                'attr' => array('placeholder' => '2015-04-01')
             ))
             ->add('editor', 'text', array(
                 'label'         => 'Data-editor',
