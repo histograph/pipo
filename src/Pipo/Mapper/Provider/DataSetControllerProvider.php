@@ -138,7 +138,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     new Assert\Length(array('min' => 1, 'max' => 123))
                 )
             ))
-            ->add('name', 'text', array(
+            ->add('title', 'text', array(
                 'label'         => 'Full name of dataset',
                 'required'  => true,
                 'constraints' =>  array(
@@ -343,9 +343,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     new Assert\Length(array('min' => 1, 'max' => 123))
                 )
             ))
-            ->add('name', 'text', array(
+            ->add('title', 'text', array(
                 'label'         => 'Dataset name',
-                'data' => $dataset['name'],
+                'data' => $dataset['title'],
                 'required'  => true,
                 'constraints' =>  array(
                     new Assert\NotBlank(),
@@ -396,9 +396,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 'label'         => 'Website with information on dataset',
                 'data' => $dataset['website']
             ))
-            ->add('period', 'text', array(
-                'label'         => 'Period, preferably year range "1600-1800"',
-                'data' => $dataset['period']
+            ->add('sourceCreationDate', 'text', array(
+                'label'         => 'Source creation date (hasBeginning and hasEnd will be calculated from pits)',
+                'data' => $dataset['sourceCreationDate']
             ))
             ->add('editor', 'text', array(
                 'label'         => 'Data-editor',
