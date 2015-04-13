@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Machine: localhost
--- Gegenereerd op: 13 apr 2015 om 11:48
+-- Gegenereerd op: 13 apr 2015 om 11:58
 -- Serverversie: 5.5.38
 -- PHP-versie: 5.6.2
 
@@ -24,8 +24,7 @@ CREATE TABLE `csvfiles` (
 `id` int(11) NOT NULL,
   `dataset_id` varchar(255) NOT NULL,
   `filename` varchar(255) NOT NULL,
-  `created_on` datetime NOT NULL,
-  `uploaded` date NOT NULL
+  `created_on` datetime NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -43,7 +42,8 @@ CREATE TABLE `datasets` (
   `website` varchar(255) NOT NULL,
   `period` varchar(255) NOT NULL,
   `edits` text NOT NULL,
-  `editor` varchar(255) NOT NULL
+  `editor` varchar(255) NOT NULL,
+  `use_csv_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
@@ -56,7 +56,7 @@ CREATE TABLE `fieldmappings` (
 `id` int(11) NOT NULL,
   `dataset_id` varchar(255) NOT NULL,
   `mapping_type` enum('property','relation','data','') NOT NULL,
-  `key` varchar(255) NOT NULL,
+  `the_key` varchar(255) NOT NULL,
   `value` varchar(255) NOT NULL,
   `value_in_field` varchar(255) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
