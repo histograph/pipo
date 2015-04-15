@@ -127,4 +127,22 @@ class DatasetService {
         ));
     }
 
+
+    /**
+     * Fetch csvs with dataset
+     * @param $id
+     * @return mixed
+     * @throws \Doctrine\DBAL\DBALException
+     */
+    public function getMappings($id)
+    {
+        $stmt = $this->db->executeQuery('
+          SELECT * FROM fieldmappings WHERE dataset_id = :setid', array(
+            'setid' => (string)$id
+        ));
+        return $stmt->fetchAll();
+    }
+
+
+
 }

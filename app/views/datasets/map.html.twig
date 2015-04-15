@@ -8,88 +8,131 @@
     <div class="row">
         <div class="col-md-8">
 
-            <h3>Properties</h3>
+            <form action="" method="post">
+
+                <h3>Properties</h3>
+                
+                <p>Properties are what makes a Pit a Pit. Only name is required.</p>
+
+                <table class="map table">
+                    <tr>
+                        <th>name</th>
+                        <td>
+                            <select class="form-control" name="prop-name">
+                                <option value="">select column</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.name == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>type</th>
+                        <td>
+                            <select class="form-control" name="prop-type-column">
+                                <option value="">select column</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.name == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                            <em>or</em>
+                            <select class="form-control" name="prop-type">
+                                <option value="">select one type for all records</option>
+                                {% for type in pittypes %}
+                                    <option value="{{ type }}" {% if properties.type == type %}selected=""{% endif %}>{{ type }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                	<tr>
+                		<th>geometry</th>
+                		<td>
+                			<select class="form-control" name="prop-geometry">
+                				<option value="">select column</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.geometry == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+    		        		</select>
+    		        	</td>
+                	</tr>
+                	<tr>
+                		<th>hasBeginning</th>
+                		<td>
+                			<select class="form-control" name="prop-hasBeginning">
+                				<option value="">select column</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.hasBeginning == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+    		        		</select>
+    		        	</td>
+                	</tr>
+                	<tr>
+                		<th>hasEnd</th>
+                		<td>
+                			<select class="form-control" name="prop-hasEnd">
+                				<option value="">select column</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.hasEnd == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+    		        		</select>
+    		        	</td>
+                	</tr>
+                </table>
+            	
+            	<h3>Relations</h3>
+
+               	<p>Relations should be mapped to a fiel containing a field with a uri or with a pit uri from the Erfgeothesaurus</p>
+                
+                <table class="map table">
+    			 	<tr>
+                		<th><select class="form-control" name="relation-type[]">
+                				<option value="">select relation</option>
+                				{% for rel in relationtypes %}
+                                    <option value="{{ rel }}">{{ rel }}</option>
+                                {% endfor %}
+    		        		</select>
+    		        	</th>
+                		<td>
+                			<select class="form-control" name="relation-column[]">
+                				<option value="">select column</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}">{{ col }}</option>
+                                {% endfor %}
+    		        		</select>
+    		        		<em>or</em>
+    		        		<input placeholder="give uri or pit uri for all recs in dataset" class="form-control" type="text" name="relation-value[]" />
+    		        	</td>
+                	</tr>
+                </table>
+                <button class="btn btn-default"><i class="fa fa-plus-circle"></i></button>
+
+                <h3>Data</h3>
+
+                <p>Data can contain key/value pairs with additional data for your Pit. Just name the key and tell us in which csv column we find the corresponding value.</p>
+
+                <table class="map table">
+                	<tr>
+                		<th>
+                			<input class="form-control" type="text" placeholder="data key name" name="data-name[]" />
+                		</th>
+                		<td>
+                			<select class="form-control" name="data-value[]">
+                				<option value="">select column</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}">{{ col }}</option>
+                                {% endfor %}
+    		        		</select>
+    		        	</td>
+                	</tr>
+                </table>
+            	
+                <button class="btn btn-default"><i class="fa fa-plus-circle"></i></button>
+
+                <br /><br />
+
+                <input type="submit" value="save mapping" class="btn btn-primary" />
             
-            <p>Properties are what makes a Pit a Pit. Only name is required.</p>
-
-            <table class="map table">
-            	<tr>
-            		<th>name</th>
-            		<td>
-            			<select class="form-control" name="prop-name">
-            				<option>select column</option>
-		        		</select>
-		        	</td>
-            	</tr>
-            	<tr>
-            		<th>geometry</th>
-            		<td>
-            			<select class="form-control" name="prop-geometry">
-            				<option>select column</option>
-		        		</select>
-		        	</td>
-            	</tr>
-            	<tr>
-            		<th>hasBeginning</th>
-            		<td>
-            			<select class="form-control" name="prop-hasBeginning">
-            				<option>select column</option>
-		        		</select>
-		        	</td>
-            	</tr>
-            	<tr>
-            		<th>hasEnd</th>
-            		<td>
-            			<select class="form-control" name="prop-hasEnd">
-            				<option>select column</option>
-		        		</select>
-		        	</td>
-            	</tr>
-            </table>
-        	
-        	<h3>Relations</h3>
-
-           	<p>Relations should be mapped to a fiel containing a field with a uri or with a pit uri from the Erfgeothesaurus</p>
-            
-            <table class="map table">
-			 	<tr>
-            		<th><select class="form-control" name="relation-type[]">
-            				<option>select relation</option>
-            				<option>hg:sameConcept</option>
-            				<option>hg:liesIn</option>
-            				<option>hg:etc</option>
-		        		</select>
-		        	</th>
-            		<td>
-            			<select class="form-control" name="relation-column[]">
-            				<option>select column</option>
-		        		</select>
-		        		<em>or</em>
-		        		<input placeholder="give uri or pit uri for all recs in dataset" class="form-control" type="text" name="data-value[]" />
-		        	</td>
-            	</tr>
-            </table>
-            <button class="btn btn-default"><i class="fa fa-plus-circle"></i></button>
-
-            <h3>Data</h3>
-
-            <p>Data can contain key/value pairs with additional data for your Pit. Just name the key and tell us in which csv column we find the corresponding value.</p>
-
-            <table class="map table">
-            	<tr>
-            		<th>
-            			<input class="form-control" type="text" placeholder="data key name" name="data-name[]" />
-            		</th>
-            		<td>
-            			<select class="form-control" name="data-value[]">
-            				<option>select column</option>
-		        		</select>
-		        	</td>
-            	</tr>
-            </table>
-        	
-            <button class="btn btn-default"><i class="fa fa-plus-circle"></i></button>
-            
+            </form>
 
         </div>
         <div class="col-md-4">

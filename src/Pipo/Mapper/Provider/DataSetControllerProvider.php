@@ -32,6 +32,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $controllers->get('/csvs/{id}', array(new self(), 'showCsvs'))->bind('dataset-csvs')->value('id', null)->assert('id', '\w+');
         $controllers->post('/csvs/{id}', array(new self(), 'handleCsvUpload'))->bind('dataset-csvupload')->value('id', null)->assert('id', '\w+');
         $controllers->get('/map/{id}', array(new self(), 'mapSet'))->bind('dataset-map')->assert('id', '\w+');
+        $controllers->post('/map/{id}', array(new self(), 'mapSave'))->bind('dataset-map-save')->assert('id', '\w+');
         $controllers->get('/describe/{id}', array(new self(), 'describeSet'))->bind('dataset-describe')->assert('id', '\w+');
         $controllers->post('/describe/{id}', array(new self(), 'saveDescription'))->bind('dataset-save-description')->assert('id', '\w+');
         $controllers->get('/validate/{id}', array(new self(), 'validateSet'))->bind('dataset-validate')->assert('id', '\w+');
@@ -275,7 +276,78 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         $dataset = $app['dataset_service']->getDataset($id);
 
-        return $app['twig']->render('datasets/map.html.twig', array('set' => $dataset));
+
+        // get fieldnames from csv
+        $usecsv =  $app['dataset_service']->getCsv($dataset['use_csv_id']);
+        $file = $app['upload_dir'] . DIRECTORY_SEPARATOR . $usecsv['filename'];
+
+        $csv = \League\Csv\Reader::createFromPath($file);
+        $columnNames = $csv->fetchOne();
+
+
+        // get current mapping if any
+        $mappings = $app['dataset_service']->getMappings($id);
+
+        $maptypes = array("property" => array(),"relation" => array(),"data" => array());
+        foreach ($mappings as $k => $v) {
+            if($v['value']!=""){
+                $maptypes[$v['type']][$v['the_key']] = $v['value'];
+            }else{
+                $maptypes[$v['type']][$v['the_key']] = $v['value_in_field'];
+            }
+            
+        }
+
+        $possibleProperties = array("name","geometry","type","hasBeginning","hasEnd");
+        foreach($possibleProperties as $k => $v){
+            if(!isset($maptypes['property'][$v])){
+                $maptypes['property'][$v] = "";
+            }
+        }
+
+        
+        // get all relations and pittypes, but where from??
+        $relationTypes = array("hg:sameHgConcept", "hg:withIn", "hg:isUsedFor");
+        $pitTypes = array("hg:Municipality", "hg:Place", "hg:Province", "hg:Street", "hg:Building");
+
+
+        return $app['twig']->render('datasets/map.html.twig', array(
+                                                                'set' => $dataset,
+                                                                'properties' => $maptypes['property'],
+                                                                'relations' => $maptypes['relation'],
+                                                                'data' => $maptypes['data'],
+                                                                'columns' => $columnNames,
+                                                                'relationtypes' => $relationTypes,
+                                                                'pittypes' => $pitTypes
+                                                                ));
+    }
+
+    /**
+     * Save Mapping
+     *
+     * @param Application $app
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function mapSave(Application $app, $id)
+    {
+        $data = $_POST;
+
+        print_r($data);
+
+        // first, get rid of all previous mappings
+        $app['db']->delete('fieldmappings', array('dataset_id' => $id));
+
+        // now, insert props, relations & additional data
+        foreach($data as $k => $v){
+            
+            if(preg_match("/^prop-([^-]+)-column/",$k,$found)){ //props with value in csv column
+                print_r($found);
+            }
+        }
+
+        
+        
     }
 
     /**
