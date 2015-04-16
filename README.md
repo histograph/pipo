@@ -21,3 +21,19 @@ The tool to create valid ndjson files to upload to the Histograph Core
 If the last step failed do this manually:
     `sudo chmod 777 app/storage/cache app/storage/log app/storage/uploads`
 8. On going to production; change the run mode in `/web/index.php` to use the http_cache 
+
+
+## DOCUMENTATIE
+
+![data importer flowchart](images/importer.png)
+
+De data importer vervangt de custom scripts die nu voor elke dataset gemaakt worden om csv naar ndjson om te zetten. Elk teamlid moet dit proces in het vervolg eenvoudig kunnen doorlopen.
+
+- upload csv
+- map velden naar ontologie histograph
+- valideer data waar nodig (datums, geojson)
+- beschrijf de bron (naam, url, licentie, beschrijving, bewerkingen, etc)
+- sla alle mappings en bronbeschrijving op in database
+- opslaan data zelf in database niet nodig
+- exporteer ndjson files voor pits, relaties en bron
+
