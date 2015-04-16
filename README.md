@@ -25,7 +25,7 @@ If the last step failed do this manually:
 
 ## DOCUMENTATIE
 
-![data importer flowchart](images/importer.svg)
+![data importer flowchart](images/importer.png)
 
 De data importer vervangt de custom scripts die nu voor elke dataset gemaakt worden om csv naar ndjson om te zetten. Elk teamlid moet dit proces in het vervolg eenvoudig kunnen doorlopen.
 
