@@ -88,3 +88,8 @@ textarea.noform{
 .map th{
 	width: 300px;
 }
+
+.control-label.required:after {
+    content:" *";
+    color:red;
+}

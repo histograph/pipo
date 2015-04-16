@@ -502,19 +502,23 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 'data' => $dataset['license']
             ))
             ->add('website', 'text', array(
+                'required'  => false,
                 'label'         => 'Website with information on dataset',
                 'data' => $dataset['website']
             ))
             ->add('sourceCreationDate', 'text', array(
+                'required'  => false,
                 'label'         => 'Source creation date (hasBeginning and hasEnd will be calculated from pits)',
                 'data' => $dataset['sourceCreationDate'],
                 'attr' => array('placeholder' => '2015-04-01')
             ))
             ->add('editor', 'text', array(
+                'required'  => false,
                 'label'         => 'Data-editor',
                 'data' => $dataset['editor']
             ))
             ->add('edits', 'textarea', array(
+                'required'  => false,
                 'label'         => 'Data-edits',
                 'data' => $dataset['edits']
             ))
