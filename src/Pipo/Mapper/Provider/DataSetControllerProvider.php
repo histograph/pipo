@@ -305,8 +305,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
             
         }
 
-        
-
         $possibleProperties = array("name","geometry","type","hasBeginning","hasEnd","lat","long");
         foreach($possibleProperties as $k => $v){
             if(!isset($maptypes['property'][$v])){
@@ -314,7 +312,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
             }
         }
 
-        
         // get all relations and pittypes, but where from??
         $relationTypes = array("hg:sameHgConcept", "hg:withIn", "hg:isUsedFor");
         $pitTypes = array("hg:Municipality", "hg:Place", "hg:Province", "hg:Street", "hg:Building");
@@ -408,9 +405,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
      * @return \Symfony\Component\HttpFoundation\RedirectResponse
      * @internal param Request $request
      */
-    public function saveDescription(Application $app, $id)
+    public function saveDescription(Application $app, Request $request, $id)
     {
-        $data = $_POST['form'];
+        $data = $request->request->get('form');
         unset($data['_token']);
 
         if ($app['dataset_service']->storeDescription($data)) { 
@@ -418,11 +415,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
             $app['session']->getFlashBag()->set('alert', 'Description has been saved!');
             return $app->redirect($app['url_generator']->generate('dataset-describe', array('id' => $id)));
         
-        }else{
-
+        } else{
             $app['session']->getFlashBag()->set('error', 'Sorry, but the update wasn\'t succesful');
             return $app->redirect($app['url_generator']->generate('dataset-describe', array('id' => $id)));
-
         }
         
     }
@@ -434,7 +429,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
      * @return mixed
      */
     private function getDescriptionForm(Application $app, $dataset) {
-        
+
         $form = $app['form.factory']
             ->createBuilder('form',$dataset)
 
