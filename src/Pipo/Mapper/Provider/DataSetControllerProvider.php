@@ -82,7 +82,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             $db = $app['db'];
             $db->insert('datasets', array(
                 'id'      => $data['id'],
-                'name'      => $data['name']
+                'title'      => $data['title']
             ));
 
 
