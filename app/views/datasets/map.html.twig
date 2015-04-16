@@ -12,7 +12,7 @@
 
                 <h3>Properties</h3>
                 
-                <p>Properties are what makes a Pit a Pit. Only name is required.</p>
+                <p>Properties are what makes a Pit a Pit. Only the 'Pit Name' is required.</p>
 
                 <table class="map table">
                     <tr>
@@ -108,15 +108,15 @@
             	
             	<h3>Relations</h3>
 
-               	<p>Relations should be mapped to a fiel containing a field with a uri or with a pit uri from the Erfgeothesaurus</p>
+               	<p>Relations should be mapped to a field with a uri or with a pit-uri from the Erfgeothesaurus</p>
                 
                 <table class="map table">
-                    {% for key,relation in relations %}
+                    {% for relation in relations %}
                         <tr>
                             <th><select class="form-control" name="relation-type[]">
                                     <option value="">select relation</option>
                                     {% for reltype in relationtypes %}
-                                        <option value="{{ reltype }}" {% if key == reltype %}selected=""{% endif %}>{{ reltype }}</option>
+                                        <option value="{{ reltype }}" {% if relation.key == reltype %}selected=""{% endif %}>{{ reltype }}</option>
                                     {% endfor %}
                                 </select>
                             </th>
@@ -158,10 +158,10 @@
                 <p>Data can contain key/value pairs with additional data for your Pit. Just name the key and tell us in which csv column we find the corresponding value.</p>
 
                 <table class="map table">
-                    {% for key,item in data %}
+                    {% for item in data %}
                         <tr>
                             <th>
-                                <input class="form-control" type="text" placeholder="data key name" value="{{ key }}" name="data-name[]" />
+                                <input class="form-control" type="text" placeholder="data key name" value="{{ item.key }}" name="data-name[]" />
                             </th>
                             <td>
                                 <select class="form-control" name="data-value[]">
@@ -199,6 +199,9 @@
 
             <h1>Map dataset '{{ set.title }}'</h1>
 
+            <ul>
+                <li>If you </li>
+            </ul>
             
 
         </div>

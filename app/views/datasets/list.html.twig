@@ -14,7 +14,8 @@
                     <tr>
                         <th>Id</th>
                         <th>Title</th>
-                        <th>Options</th>
+                        <th>View</th>
+                        <th>Delete</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -23,8 +24,9 @@
                             <td>{{ set.id }}</td>
                             <td>{{ set.title }}</td>
                             <td>
-                                <a href="{{ path('dataset-csvs', {'id': set.id }) }}" class="btn btn-xs btn-success" title="Bekijk de resultaten"><i class="fa fa-search-plus"></i> </a>
-                                <a href="{{ path('dataset-map', {'id': set.id }) }}" title="Bekijk of bewerk mapping" class="btn btn-xs btn-primary"><i class="fa fa-pencil"></i> </a>
+                                <a href="{{ path('dataset-describe', {'id': set.id }) }}" class="btn btn-xs btn-success" title="Bekijk de resultaten"><i class="fa fa-search-plus"></i> </a>
+                            </td>
+                            <td>
                                 <a href="{{ path('dataset-delete', { 'id': set.id }) }}" title="Verwijder de gehele dataset" class="btn btn-xs btn-danger delete"><i class="fa fa-trash"></i> </a>
                             </td>
                         </tr>

@@ -281,6 +281,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $usecsv =  $app['dataset_service']->getCsv($dataset['use_csv_id']);
         $file = $app['upload_dir'] . DIRECTORY_SEPARATOR . $usecsv['filename'];
 
+        if(!is_file($file)){
+            $app['session']->getFlashBag()->set('error', 'No csv-file yet, redirected to csv-file upload');
+            return $app->redirect($app['url_generator']->generate('dataset-csvs', array('id' => $id)));
+        }
+
         $csv = \League\Csv\Reader::createFromPath($file);
         $columnNames = $csv->fetchOne();
 
@@ -293,8 +298,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 $maptypes[$v['mapping_type']][$v['the_key'] . 'Column'] = $v['value_in_field'];
                 $maptypes[$v['mapping_type']][$v['the_key'] . 'Text'] = $v['value'];
             }else{
-                $maptypes[$v['mapping_type']][$v['the_key']]['column'] = $v['value_in_field'];
-                $maptypes[$v['mapping_type']][$v['the_key']]['text'] = $v['value'];
+                $maptypes[$v['mapping_type']][$v['id']]['column'] = $v['value_in_field'];
+                $maptypes[$v['mapping_type']][$v['id']]['text'] = $v['value'];
+                $maptypes[$v['mapping_type']][$v['id']]['key'] = $v['the_key'];
             }
             
         }
@@ -371,6 +377,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             }
         }
 
+        $app['session']->getFlashBag()->set('alert', 'Mapping has been saved!');
         return $app->redirect($app['url_generator']->generate('dataset-map', array('id' => $id)));
 
         

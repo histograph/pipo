@@ -15,6 +15,7 @@ h1,h2,h3,.navbar-default, label, .btn{
 }
 h1{
 	margin-bottom: 24px;
+	font-size: 28px;
 }
 .col-md-8{
 	padding-top: 24px;
@@ -45,6 +46,9 @@ p {margin-top: 8px;}
 }
 .navbar-default .navbar-nav>li>a, .navbar-default .navbar-brand{
 	color: #fff;
+}
+.navbar-nav>li>a:hover, .navbar-default .navbar-brand:hover, .navbar-default .navbar-brand:focus, .navbar-default .navbar-nav>li>a:hover, .navbar-default .navbar-nav>li>a:focus {
+	color: #E3C5EE;
 }
 .btn-default{
 	margin-bottom: 8px;
