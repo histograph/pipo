@@ -67,8 +67,8 @@
     {% for flashMessage in app.session.flashbag.get('alert') %}
         <script>
             jQuery(function () {
-                alertMessage({{ flashMessage }});
-            }
+                alertMessage("{{ flashMessage }}");
+            });
         </script>
     {% endfor %}
 {% endif %}
@@ -77,8 +77,8 @@
     {% for flashMessage in app.session.flashbag.get('error') %}
         <script>
             jQuery(function () {
-                alertMessage({{ flashMessage }}, 'alert-danger');
-            }
+                alertMessage("{{ flashMessage }}", 'alert-danger');
+            });
         </script>
     {% endfor %}
 {% endif %}
@@ -91,6 +91,7 @@
 
     // inject alert
     function alertMessage(msg, type) {
+        console.log('alert!');
         if (!type) {
             type = 'alert-success';
         }
