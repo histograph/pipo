@@ -289,16 +289,19 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $mappings = $app['dataset_service']->getMappings($id);
         $maptypes = array("property" => array(),"relation" => array(),"data" => array());
         foreach ($mappings as $k => $v) {
-
-            $maptypes[$v['mapping_type']][$v['the_key'] . 'Column'] = $v['value_in_field'];
-            $maptypes[$v['mapping_type']][$v['the_key'] . 'Text'] = $v['value'];
-            
+            if($v['mapping_type']=="property"){
+                $maptypes[$v['mapping_type']][$v['the_key'] . 'Column'] = $v['value_in_field'];
+                $maptypes[$v['mapping_type']][$v['the_key'] . 'Text'] = $v['value'];
+            }else{
+                $maptypes[$v['mapping_type']][$v['the_key']]['column'] = $v['value_in_field'];
+                $maptypes[$v['mapping_type']][$v['the_key']]['text'] = $v['value'];
+            }
             
         }
 
-        //print_r($maptypes);
+        
 
-        $possibleProperties = array("name","geometry","type","hasBeginning","hasEnd");
+        $possibleProperties = array("name","geometry","type","hasBeginning","hasEnd","lat","long");
         foreach($possibleProperties as $k => $v){
             if(!isset($maptypes['property'][$v])){
                 $maptypes['property'][$v] = "";
@@ -362,7 +365,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         // data
         for ($i=0; $i<count($data['data-name']); $i++) {
-            if($data['relation-type'][$i]!=""){
+            if($data['data-name'][$i]!=""){
                 $insdata = array('dataset_id' => $id, 'mapping_type' => 'data', 'the_key' => $data['data-name'][$i], 'value_in_field' => $data['data-value'][$i]);
                 $db->insert('fieldmappings', $insdata);
             }

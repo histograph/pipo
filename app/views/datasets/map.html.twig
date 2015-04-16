@@ -16,10 +16,10 @@
 
                 <table class="map table">
                     <tr>
-                        <th>name</th>
+                        <th>Pit Name</th>
                         <td>
                             <select class="form-control" name="prop-name">
-                                <option value="">select column</option>
+                                <option value="">select column from csv</option>
                                 {% for col in columns %}
                                     <option value="{{ col }}" {% if properties.nameColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
@@ -27,15 +27,15 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>type</th>
+                        <th>Pit Type</th>
                         <td>
                             <select class="form-control" name="prop-type">
-                                <option value="">select column</option>
+                                <option value="">select column from csv</option>
                                 {% for col in columns %}
                                     <option value="{{ col }}" {% if properties.typeColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
                             </select>
-                            <em>or</em>
+                            <em>or select a default type for all records in set</em>
                             <select class="form-control" name="prop-type-text">
                                 <option value="">select one type for all records</option>
                                 {% for type in pittypes %}
@@ -44,37 +44,64 @@
                             </select>
                         </td>
                     </tr>
-                	<tr>
-                		<th>geometry</th>
-                		<td>
-                			<select class="form-control" name="prop-geometry">
-                				<option value="">select column</option>
+                    <tr>
+                        <th>geometry (geojson!)</th>
+                        <td>
+                            <select class="form-control" name="prop-geometry">
+                                <option value="">select column from csv</option>
                                 {% for col in columns %}
-                                    <option value="{{ col }}" {% if properties.geometry == col %}selected=""{% endif %}>{{ col }}</option>
+                                    <option value="{{ col }}" {% if properties.geometryColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
-    		        		</select>
-    		        	</td>
-                	</tr>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>lattitude</th>
+                        <td>
+                            <select class="form-control" name="prop-lat">
+                                <option value="">select column from csv</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.latColumn == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>longitude</th>
+                        <td>
+                            <select class="form-control" name="prop-long">
+                                <option value="">select column from csv</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.longColumn == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
                 	<tr>
                 		<th>hasBeginning</th>
                 		<td>
                 			<select class="form-control" name="prop-hasBeginning">
-                				<option value="">select column</option>
+                				<option value="">select column from csv</option>
                                 {% for col in columns %}
-                                    <option value="{{ col }}" {% if properties.hasBeginning == col %}selected=""{% endif %}>{{ col }}</option>
+                                    <option value="{{ col }}" {% if properties.hasBeginningColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
     		        		</select>
+                            <em>or give a yyyy-mm-dd formatted date for all records in set</em>
+                            <input class="form-control" type="text" value="{{ properties.hasBeginningText }}" name="prop-hasBeginning-text" placeholder="yyyy-dd-mm" />
+                                
     		        	</td>
                 	</tr>
                 	<tr>
                 		<th>hasEnd</th>
                 		<td>
                 			<select class="form-control" name="prop-hasEnd">
-                				<option value="">select column</option>
+                				<option value="">select column from csv</option>
                                 {% for col in columns %}
-                                    <option value="{{ col }}" {% if properties.hasEnd == col %}selected=""{% endif %}>{{ col }}</option>
+                                    <option value="{{ col }}" {% if properties.hasEndColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
     		        		</select>
+                            <em>or give a yyyy-mm-dd formatted date for all records in set</em>
+                            <input class="form-control" type="text" value="{{ properties.hasEndText }}" name="prop-hasEnd-text" placeholder="yyyy-dd-mm" />
     		        	</td>
                 	</tr>
                 </table>
@@ -84,17 +111,38 @@
                	<p>Relations should be mapped to a fiel containing a field with a uri or with a pit uri from the Erfgeothesaurus</p>
                 
                 <table class="map table">
+                    {% for key,relation in relations %}
+                        <tr>
+                            <th><select class="form-control" name="relation-type[]">
+                                    <option value="">select relation</option>
+                                    {% for reltype in relationtypes %}
+                                        <option value="{{ reltype }}" {% if key == reltype %}selected=""{% endif %}>{{ reltype }}</option>
+                                    {% endfor %}
+                                </select>
+                            </th>
+                            <td>
+                                <select class="form-control" name="relation-column[]">
+                                    <option value="">select column from csv</option>
+                                    {% for col in columns %}
+                                        <option value="{{ col }}"{% if relation.column == col %}selected=""{% endif %}>{{ col }}</option>
+                                    {% endfor %}
+                                </select>
+                                <em>or</em>
+                                <input value="{{ relation.text }}" placeholder="give uri or pit uri for all recs in dataset" class="form-control" type="text" name="relation-value[]" />
+                            </td>
+                        </tr>
+                    {% endfor %}   
     			 	<tr>
                 		<th><select class="form-control" name="relation-type[]">
                 				<option value="">select relation</option>
-                				{% for rel in relationtypes %}
-                                    <option value="{{ rel }}">{{ rel }}</option>
+                				{% for reltype in relationtypes %}
+                                    <option value="{{ reltype }}">{{ reltype }}</option>
                                 {% endfor %}
     		        		</select>
     		        	</th>
                 		<td>
                 			<select class="form-control" name="relation-column[]">
-                				<option value="">select column</option>
+                				<option value="">select column from csv</option>
                                 {% for col in columns %}
                                     <option value="{{ col }}">{{ col }}</option>
                                 {% endfor %}
@@ -104,20 +152,34 @@
     		        	</td>
                 	</tr>
                 </table>
-                <button class="btn btn-default"><i class="fa fa-plus-circle"></i></button>
-
+                
                 <h3>Data</h3>
 
                 <p>Data can contain key/value pairs with additional data for your Pit. Just name the key and tell us in which csv column we find the corresponding value.</p>
 
                 <table class="map table">
+                    {% for key,item in data %}
+                        <tr>
+                            <th>
+                                <input class="form-control" type="text" placeholder="data key name" value="{{ key }}" name="data-name[]" />
+                            </th>
+                            <td>
+                                <select class="form-control" name="data-value[]">
+                                    <option value="">select column from csv</option>
+                                    {% for col in columns %}
+                                        <option value="{{ col }}"{% if item.column == col %}selected=""{% endif %}>{{ col }}</option>
+                                    {% endfor %}
+                                </select>
+                            </td>
+                        </tr>
+                    {% endfor %}   
                 	<tr>
                 		<th>
                 			<input class="form-control" type="text" placeholder="data key name" name="data-name[]" />
                 		</th>
                 		<td>
                 			<select class="form-control" name="data-value[]">
-                				<option value="">select column</option>
+                				<option value="">select column from csv</option>
                                 {% for col in columns %}
                                     <option value="{{ col }}">{{ col }}</option>
                                 {% endfor %}
@@ -126,9 +188,7 @@
                 	</tr>
                 </table>
             	
-                <button class="btn btn-default"><i class="fa fa-plus-circle"></i></button>
-
-                <br /><br />
+                
 
                 <input type="submit" value="save mapping" class="btn btn-primary" />
             
