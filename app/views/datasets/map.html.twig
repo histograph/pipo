@@ -21,7 +21,7 @@
                             <select class="form-control" name="prop-name">
                                 <option value="">select column</option>
                                 {% for col in columns %}
-                                    <option value="{{ col }}" {% if properties.name == col %}selected=""{% endif %}>{{ col }}</option>
+                                    <option value="{{ col }}" {% if properties.nameColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
                             </select>
                         </td>
@@ -29,17 +29,17 @@
                     <tr>
                         <th>type</th>
                         <td>
-                            <select class="form-control" name="prop-type-column">
+                            <select class="form-control" name="prop-type">
                                 <option value="">select column</option>
                                 {% for col in columns %}
-                                    <option value="{{ col }}" {% if properties.name == col %}selected=""{% endif %}>{{ col }}</option>
+                                    <option value="{{ col }}" {% if properties.typeColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
                             </select>
                             <em>or</em>
-                            <select class="form-control" name="prop-type">
+                            <select class="form-control" name="prop-type-text">
                                 <option value="">select one type for all records</option>
                                 {% for type in pittypes %}
-                                    <option value="{{ type }}" {% if properties.type == type %}selected=""{% endif %}>{{ type }}</option>
+                                    <option value="{{ type }}" {% if properties.typeText == type %}selected=""{% endif %}>{{ type }}</option>
                                 {% endfor %}
                             </select>
                         </td>

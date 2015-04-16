@@ -287,16 +287,16 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         // get current mapping if any
         $mappings = $app['dataset_service']->getMappings($id);
-
         $maptypes = array("property" => array(),"relation" => array(),"data" => array());
         foreach ($mappings as $k => $v) {
-            if($v['value']!=""){
-                $maptypes[$v['type']][$v['the_key']] = $v['value'];
-            }else{
-                $maptypes[$v['type']][$v['the_key']] = $v['value_in_field'];
-            }
+
+            $maptypes[$v['mapping_type']][$v['the_key'] . 'Column'] = $v['value_in_field'];
+            $maptypes[$v['mapping_type']][$v['the_key'] . 'Text'] = $v['value'];
+            
             
         }
+
+        //print_r($maptypes);
 
         $possibleProperties = array("name","geometry","type","hasBeginning","hasEnd");
         foreach($possibleProperties as $k => $v){
@@ -332,19 +332,43 @@ class DataSetControllerProvider implements ControllerProviderInterface
     public function mapSave(Application $app, $id)
     {
         $data = $_POST;
-
-        print_r($data);
+        $db = $app['db'];
 
         // first, get rid of all previous mappings
         $app['db']->delete('fieldmappings', array('dataset_id' => $id));
 
-        // now, insert props, relations & additional data
+        // props
         foreach($data as $k => $v){
             
-            if(preg_match("/^prop-([^-]+)-column/",$k,$found)){ //props with value in csv column
-                print_r($found);
+            if(preg_match("/^prop-([^-]+)$/",$k,$found)){   
+                if(isset($_POST['prop-' . $found[1] . '-text'])){
+                    $insdata = array('dataset_id' => $id, 'mapping_type' => 'property', 'the_key' => $found[1], 'value_in_field' => $v, 'value' => $_POST['prop-' . $found[1] . '-text']);
+                }else{
+                    $insdata = array('dataset_id' => $id, 'mapping_type' => 'property', 'mapping_type' => 'property', 'the_key' => $found[1], 'value_in_field' => $v);
+                }
+                $db->insert('fieldmappings', $insdata);
+            }
+
+        }
+
+        // relations
+        for ($i=0; $i<count($data['relation-type']); $i++) {
+            if($data['relation-type'][$i]!=""){
+                $insdata = array('dataset_id' => $id, 'mapping_type' => 'relation', 'the_key' => $data['relation-type'][$i], 'value_in_field' => $data['relation-column'][$i], 'value' => $data['relation-value'][$i]);
+                $db->insert('fieldmappings', $insdata);
             }
         }
+
+
+        // data
+        for ($i=0; $i<count($data['data-name']); $i++) {
+            if($data['relation-type'][$i]!=""){
+                $insdata = array('dataset_id' => $id, 'mapping_type' => 'data', 'the_key' => $data['data-name'][$i], 'value_in_field' => $data['data-value'][$i]);
+                $db->insert('fieldmappings', $insdata);
+            }
+        }
+
+        return $app->redirect($app['url_generator']->generate('dataset-map', array('id' => $id)));
 
         
         
