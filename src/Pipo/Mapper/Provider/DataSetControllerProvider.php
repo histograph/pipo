@@ -29,23 +29,23 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         $controllers->get('/new', array(new self(), 'newSet'))->bind('dataset-new');
         $controllers->post('/new', array(new self(), 'saveNewSet'))->bind('dataset-insert');
-        $controllers->get('/csvs/{id}', array(new self(), 'showCsvs'))->bind('dataset-csvs')->value('id', null)->assert('id', '\w+');
-        $controllers->post('/csvs/{id}', array(new self(), 'handleCsvUpload'))->bind('dataset-csvupload')->value('id', null)->assert('id', '\w+');
-        $controllers->get('/map/{id}', array(new self(), 'mapSet'))->bind('dataset-map')->assert('id', '\w+');
-        $controllers->post('/map/{id}', array(new self(), 'mapSave'))->bind('dataset-map-save')->assert('id', '\w+');
-        $controllers->get('/describe/{id}', array(new self(), 'describeSet'))->bind('dataset-describe')->assert('id', '\w+');
-        $controllers->post('/describe/{id}', array(new self(), 'saveDescription'))->bind('dataset-save-description')->assert('id', '\w+');
-        $controllers->get('/validate/{id}', array(new self(), 'validateSet'))->bind('dataset-validate')->assert('id', '\w+');
-        $controllers->get('/export/{id}', array(new self(), 'exportSet'))->bind('dataset-export')->value('id', null)->assert('id', '\w+');
-        $controllers->get('/exportsource/{id}', array(new self(), 'exportSource'))->bind('dataset-export-source')->value('id', null)->assert('id', '\w+');
-        $controllers->get('/exportrelations/{id}', array(new self(), 'exportRelations'))->bind('dataset-export-relations')->value('id', null)->assert('id', '\w+');
-        $controllers->get('/exportpits/{id}', array(new self(), 'exportPits'))->bind('dataset-export-pits')->value('id', null)->assert('id', '\w+');
+        $controllers->get('/csvs/{id}', array(new self(), 'showCsvs'))->bind('dataset-csvs')->value('id', null)->assert('id', '[a-z0-9-]+');
+        $controllers->post('/csvs/{id}', array(new self(), 'handleCsvUpload'))->bind('dataset-csvupload')->value('id', null)->assert('id', '[a-z0-9-]+');
+        $controllers->get('/map/{id}', array(new self(), 'mapSet'))->bind('dataset-map')->assert('id', '[a-z0-9-]+');
+        $controllers->post('/map/{id}', array(new self(), 'mapSave'))->bind('dataset-map-save')->assert('id', '[a-z0-9-]+');
+        $controllers->get('/describe/{id}', array(new self(), 'describeSet'))->bind('dataset-describe')->assert('id', '[a-z0-9-]+');
+        $controllers->post('/describe/{id}', array(new self(), 'saveDescription'))->bind('dataset-save-description')->assert('id', '[a-z0-9-]+');
+        $controllers->get('/validate/{id}', array(new self(), 'validateSet'))->bind('dataset-validate')->assert('id', '[a-z0-9-]+');
+        $controllers->get('/export/{id}', array(new self(), 'exportSet'))->bind('dataset-export')->value('id', null)->assert('id', '[a-z0-9-]+');
+        $controllers->get('/exportsource/{id}', array(new self(), 'exportSource'))->bind('dataset-export-source')->value('id', null)->assert('id', '[a-z0-9-]+');
+        $controllers->get('/exportrelations/{id}', array(new self(), 'exportRelations'))->bind('dataset-export-relations')->value('id', null)->assert('id', '[a-z0-9-]+');
+        $controllers->get('/exportpits/{id}', array(new self(), 'exportPits'))->bind('dataset-export-pits')->value('id', null)->assert('id', '[a-z0-9-]+');
         
-        $controllers->get('/files/{id}/{name}', array(new self(), 'serveFile'))->bind('dataset-serve-file')->value('id', null)->assert('id', '\w+');
+        $controllers->get('/files/{id}/{name}', array(new self(), 'serveFile'))->bind('dataset-serve-file')->value('id', null)->assert('id', '[a-z0-9-]+');
 
-        $controllers->get('/delete/{id}', array(new self(), 'deleteSet'))->bind('dataset-delete')->assert('id', '\w+');
+        $controllers->get('/delete/{id}', array(new self(), 'deleteSet'))->bind('dataset-delete')->assert('id', '[a-z0-9-]+');
 
-        $controllers->get('/postsource/{id}', array(new self(), 'postSet'))->bind('dataset-post-source')->assert('id', '\w+');
+        $controllers->get('/postsource/{id}', array(new self(), 'postSet'))->bind('dataset-post-source')->assert('id', '[a-z0-9-]+');
         return $controllers;
     }
 
@@ -133,10 +133,10 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 'constraints' =>  array(
                     new Assert\NotBlank(),
                     new Assert\Regex(array(
-                        'pattern'     => '/^[a-z0-9]+$/i',
-                        'htmlPattern' => '^[a-z0-9]+$',
+                        'pattern'     => '/^[a-z0-9-]+$/i',
+                        'htmlPattern' => '^[a-z0-9-]+$',
                         'match'   => true,
-                        'message' => 'Only lowercase characters, no spaces, please',
+                        'message' => 'Only lowercase characters and hyphens, no spaces, please',
                     )),
                     new Assert\Length(array('min' => 1, 'max' => 123))
                 )

@@ -16,6 +16,22 @@
 
                 <table class="map table">
                     <tr>
+                        <th>Pit Id</th>
+                        <td>
+
+                            <select class="form-control" name="prop-pitid">
+                                <option value="">select column from csv</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}"
+                                        {% if properties.pitidColumn is defined %}
+                                            {% if properties.pitidColumn == col %}selected=""{% endif %}
+                                        {% endif %}
+                                        >{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
                         <th>Pit Name</th>
                         <td>
 
@@ -205,7 +221,10 @@
             <h1>Map dataset '{{ set.title }}'</h1>
 
             <ul>
-                <li>If you </li>
+                <li>Make sure to provide a permanent id for your pits, so that relations to your pits won't get lost.</li>
+                <li>GeoJSON is the preferred way, but for practical reasons the importer will make GeoJSON from lat and long fields as well</li>
+                <li>Remember, longitudes go from pole to pole and start counting in Greenwich, which makes the Netherlands somewhere in the 4-6 range. Messing this up might subject you to Somali Pirates</li>
+                <li>Need more relations or data fields? Save current and a new entry field will appear</li>
             </ul>
 
 
