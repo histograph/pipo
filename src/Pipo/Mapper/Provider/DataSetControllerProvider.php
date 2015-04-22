@@ -613,16 +613,60 @@ class DataSetControllerProvider implements ControllerProviderInterface
     public function exportPits(Application $app, $id)
     {
         $dataset = $app['dataset_service']->getDataset($id);
-        unset($dataset['use_csv_id']);
+        
+        // get csv
+        $usecsv =  $app['dataset_service']->getCsv($dataset['use_csv_id']);
+        $file = $app['upload_dir'] . DIRECTORY_SEPARATOR . $usecsv['filename'];
 
-        $sourcejson = json_encode($dataset);
+        if(!is_file($file)){
+            $app['session']->getFlashBag()->set('error', 'No csv-file yet, redirected to csv-file upload');
+            return $app->redirect($app['url_generator']->generate('dataset-csvs', array('id' => $id)));
+        }
+
+        $csv = \League\Csv\Reader::createFromPath($file);
+        $recs = $csv->fetchAll();
+        $columnNames = array_shift($recs); // first row holds column names, right?
+        $columnKeys = array_flip($columnNames);
+
+        
+        // get mappings (what property, relation of data is held in what field?)
+		$mappings = $app['dataset_service']->getMappings($id);
+		foreach ($mappings as $k => $v) {
+            
+            $maptypes[$v['mapping_type']][$v['id']]['column'] = $v['value_in_field'];
+            $maptypes[$v['mapping_type']][$v['id']]['text'] = $v['value'];
+            $maptypes[$v['mapping_type']][$v['id']]['key'] = $v['the_key'];
+        
+            
+        }
+		
+		// attach the right values to the keys expected by Histograph and create ndjson
+		$pits = array();
+        $lastkey = count($columnNames)-1;
+        foreach ($recs as $recKey => $rec) {
+        	if(isset($rec[$lastkey])){ // first csv i tried ended with a empty line, which was read as 'rec'
+	        	foreach ($maptypes['property'] as $prop) {
+	        		if($prop['text']!=""){
+	        			$pit[$prop['key']] = $prop['text'];
+	        		}
+	        		if($prop['column']!=""){
+	        			$pit[$prop['key']] = $rec[$columnKeys[$prop['column']]];
+	        		}
+	        	}
+	        	foreach ($maptypes['data'] as $item) {
+	        		$pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
+	        	}
+	        	$pits[] = json_encode($pit);
+        	}
+        }
+        $ndjson = implode("\n",$pits);
 
         $dir = $app['export_dir'] . '/' . $id;
         if (!file_exists($dir)) {
             mkdir($dir, 0777);
         }
 
-        file_put_contents( $dir . '/pits.ndjson', $sourcejson);
+        file_put_contents( $dir . '/pits.ndjson', $ndjson);
         
         $app['session']->getFlashBag()->set('alert', 'Er is een pits.ndjson aangemaakt of overschreven.');
         
