@@ -12,19 +12,19 @@
 
                 <h3>Properties</h3>
 
-                <p>Properties are what makes a Pit a Pit. Only the 'Pit Name' is required.</p>
+                <p>Properties are what makes a Pit a Pit. 'Pit Name' and 'Pit Id' are required.</p>
 
                 <table class="map table">
                     <tr>
-                        <th>Pit Id</th>
+                        <th class="required">Pit Id</th>
                         <td>
 
-                            <select class="form-control" name="prop-pitid">
+                            <select class="form-control" name="prop-id">
                                 <option value="">select column from csv</option>
                                 {% for col in columns %}
                                     <option value="{{ col }}"
-                                        {% if properties.pitidColumn is defined %}
-                                            {% if properties.pitidColumn == col %}selected=""{% endif %}
+                                        {% if properties.idColumn is defined %}
+                                            {% if properties.idColumn == col %}selected=""{% endif %}
                                         {% endif %}
                                         >{{ col }}</option>
                                 {% endfor %}
@@ -125,6 +125,17 @@
                             <input class="form-control" type="text" value="{% if properties.hasEndText is defined %} {{ properties.hasEndText }}{% endif %}" name="prop-hasEnd-text" placeholder="yyyy-dd-mm" />
                         </td>
                     </tr>
+                    <tr>
+                        <th>uri (of pit in source itself - no relations!)</th>
+                        <td>
+                            <select class="form-control" name="prop-uri">
+                                <option value="">select column from csv</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.uriColumn is defined and properties.uriColumn == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
                 </table>
 
                 <h3>Relations</h3>
@@ -223,6 +234,7 @@
             <ul>
                 <li>Make sure to provide a permanent id for your pits, so that relations to your pits won't get lost.</li>
                 <li>GeoJSON is the preferred way, but for practical reasons the importer will make GeoJSON from lat and long fields as well</li>
+                <li>Only provide geometry, lat or long if it originates from the source itself (e.g. if the dataset is a list of toponyms and the geometry comes from TGN, just make a hg:sameHgConcept relation to TGN uri's)</li>
                 <li>Remember, longitudes go from pole to pole and start counting in Greenwich, which makes the Netherlands somewhere in the 4-6 range. Messing this up might subject you to Somali Pirates</li>
                 <li>Need more relations or data fields? Save current and a new entry field will appear</li>
             </ul>

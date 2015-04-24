@@ -559,17 +559,15 @@ class DataSetControllerProvider implements ControllerProviderInterface
     {
         $dataset = $app['dataset_service']->getDataset($id);
 
-        unset($dataset['use_csv_id']);
-
         $files = array();
         if(file_exists($app['export_dir'] . '/' . $id . '/source.json')){
             $files['source'] = '/files/' . $id . '/source.json';
         }
         if(file_exists($app['export_dir'] . '/' . $id . '/pits.ndjson')){
-            $files['pits'] = $app['export_dir'] . '/' . $id . '/pits.ndjson';
+            $files['pits'] = '/files/' . $id . '/pits.ndjson';
         }
         if(file_exists($app['export_dir'] . '/' . $id . '/relations.ndjson')){
-            $files['relations'] = $app['export_dir'] . '/' . $id . '/relations.ndjson';
+            $files['relations'] = '/files/' . $id . '/relations.ndjson';
         }
         
 
@@ -604,7 +602,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
     }
 
     /**
-     * Show all the details for one dataset
+     * Export pits to ndjson file
      *
      * @param Application $app
      * @param $id
@@ -644,17 +642,31 @@ class DataSetControllerProvider implements ControllerProviderInterface
 		$pits = array();
         $lastkey = count($columnNames)-1;
         foreach ($recs as $recKey => $rec) {
-        	if(isset($rec[$lastkey])){ // first csv i tried ended with a empty line, which was read as 'rec'
+
+        	$pit = array();
+
+        	if(isset($rec[$lastkey])){ // first csv i tried ended with an empty line, make sure rec has all expected columns
 	        	foreach ($maptypes['property'] as $prop) {
+
 	        		if($prop['text']!=""){
 	        			$pit[$prop['key']] = $prop['text'];
 	        		}
 	        		if($prop['column']!=""){
 	        			$pit[$prop['key']] = $rec[$columnKeys[$prop['column']]];
 	        		}
+	        		
+
 	        	}
+	        	// if lat & long and no geometry, make geojson from lat & long values
+        		if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
+        			$pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
+        		}
 	        	foreach ($maptypes['data'] as $item) {
 	        		$pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
+	        	}
+
+	        	if(!preg_match("/^" . $id . "\//", $pit['id'])){ // format id as sourceid/itemid if not already
+					$pit['id'] = $id . "/" . $pit['id'];
 	        	}
 	        	$pits[] = json_encode($pit);
         	}
@@ -672,6 +684,93 @@ class DataSetControllerProvider implements ControllerProviderInterface
         
         return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
     }
+
+    /**
+     * Export pits to ndjson file
+     *
+     * @param Application $app
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function exportRelations(Application $app, $id)
+    {
+        $dataset = $app['dataset_service']->getDataset($id);
+        
+        // get csv
+        $usecsv =  $app['dataset_service']->getCsv($dataset['use_csv_id']);
+        $file = $app['upload_dir'] . DIRECTORY_SEPARATOR . $usecsv['filename'];
+
+        if(!is_file($file)){
+            $app['session']->getFlashBag()->set('error', 'No csv-file yet, redirected to csv-file upload');
+            return $app->redirect($app['url_generator']->generate('dataset-csvs', array('id' => $id)));
+        }
+
+        $csv = \League\Csv\Reader::createFromPath($file);
+        $recs = $csv->fetchAll();
+        $columnNames = array_shift($recs); // first row holds column names, right?
+        $columnKeys = array_flip($columnNames);
+
+        
+        // get mappings (what property, relation of data is held in what field?)
+		$mappings = $app['dataset_service']->getMappings($id);
+		foreach ($mappings as $k => $v) {
+            
+            $maptypes[$v['mapping_type']][$v['id']]['column'] = $v['value_in_field'];
+            $maptypes[$v['mapping_type']][$v['id']]['text'] = $v['value'];
+            $maptypes[$v['mapping_type']][$v['id']]['key'] = $v['the_key'];
+        
+            
+        }
+		
+		// attach the right values to the keys expected by Histograph and create ndjson
+		$relations = array();
+        $lastkey = count($columnNames)-1;
+        foreach ($recs as $recKey => $rec) {
+        	$pitid = false;
+        	if(isset($rec[$lastkey])){ // first csv i tried ended with an empty line, make sure rec has all expected columns
+	        	
+	        	foreach ($maptypes['property'] as $prop) {
+
+	        		if($prop['key']=="id"){
+	        			$pitid = $rec[$columnKeys[$prop['column']]];
+	        		}
+
+	        	}
+	        	if(!$pitid){
+	        		$app['session']->getFlashBag()->set('error', 'No pit id has been defined');
+        			return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+	        	}
+	        	if(!preg_match("/^" . $id . "\//", $pitid)){ // format id as sourceid/itemid if not already
+					$pitid = $id . "/" . $pitid;
+	        	}
+
+	        	foreach ($maptypes['relation'] as $item) {
+	        		if($rec[$columnKeys[$item['column']]] != ""){
+		        		$relation = 	array(	'from' => $pitid,
+		        								'to' => $rec[$columnKeys[$item['column']]],
+		        								'label' => [$item['key']]
+		        								);
+		        		$relations[] = json_encode($relation);
+	        		}
+	        	}
+
+	        	
+        	}
+        }
+        $ndjson = implode("\n",$relations);
+
+        $dir = $app['export_dir'] . '/' . $id;
+        if (!file_exists($dir)) {
+            mkdir($dir, 0777);
+        }
+
+        file_put_contents( $dir . '/relations.ndjson', $ndjson);
+        
+        $app['session']->getFlashBag()->set('alert', 'Er is een relations.ndjson aangemaakt of overschreven.');
+        
+        return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+    }
+
 
 
     /**
