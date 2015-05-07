@@ -313,8 +313,27 @@ class DataSetControllerProvider implements ControllerProviderInterface
         }
 
         // get all relations and pittypes, but where from??
-        $relationTypes = array("hg:sameHgConcept", "hg:withIn", "hg:isUsedFor");
-        $pitTypes = array("hg:Municipality", "hg:Place", "hg:Province", "hg:Street", "hg:Building");
+        $relationTypes = array(     "hg:absorbed",
+                                    "hg:absorbedBy",
+                                    "hg:contains",
+                                    "hg:hasGeoFeature",
+                                    "hg:hasName",
+                                    "hg:hasPitType",
+                                    "hg:hasProvEntity",
+                                    "hg:hasTimeTemporalEntity",
+                                    "hg:isUsedFor",
+                                    "hg:sameHgConcept",
+                                    "hg:within");
+        $pitTypes = array( "hg:Street",
+                            "hg:Country",
+                            "hg:Province",
+                            "hg:Municipality",
+                            "hg:Place",
+                            "hg:Water",
+                            "hg:Area",
+                            "hg:Building",
+                            "hg:Monument",
+                            "hg:Neighbourhood");
 
 
         return $app['twig']->render('datasets/map.html.twig', array(
