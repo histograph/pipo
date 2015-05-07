@@ -18,7 +18,7 @@ class ApiControllerProvider implements ControllerProviderInterface {
         $controllers->get('/choose-csv/{id}/{datasetId}', array(new self(), 'chooseCsv'))
             ->bind('api-choose-csv')
             ->assert('id', '\d+')
-            ->assert('datasetId', '\w+');
+            ->assert('datasetId', '[a-z0-9-]+');
 
         //$controllers->post('/record/choose-pit/{id}', array(new self(), 'choosePit'))->bind('api-choose-pit')->assert('id', '\d+');
         return $controllers;
