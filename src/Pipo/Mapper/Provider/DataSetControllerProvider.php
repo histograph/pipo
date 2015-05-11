@@ -276,7 +276,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         $dataset = $app['dataset_service']->getDataset($id);
 
-
         // get fieldnames from csv
         $usecsv =  $app['dataset_service']->getCsv($dataset['use_csv_id']);
         $file = $app['upload_dir'] . DIRECTORY_SEPARATOR . $usecsv['filename'];
@@ -680,9 +679,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
         		if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
         			$pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
         		}
-	        	foreach ($maptypes['data'] as $item) {
-	        		$pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
-	        	}
+                if (isset($maptypes['data'])) {
+                    foreach ($maptypes['data'] as $item) {
+                        $pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
+                    }
+                }
 
 	        	if(!preg_match("/^" . $id . "\//", $pit['id'])){ // format id as sourceid/itemid if not already
 					$pit['id'] = $id . "/" . $pit['id'];
