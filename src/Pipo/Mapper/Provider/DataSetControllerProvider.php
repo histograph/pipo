@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints as Assert;
 
 use League\Csv\Writer;
+use SplTempFileObject;
 
 /**
  * Class DataSetControllerProvider
@@ -206,10 +207,55 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $form->bind($request);
         if ($form->isValid()) {
             $files = $request->files->get($form->getName());
-
-            $filename = time(). '.csv';
+            
             $originalName = $files['csvFile']->getClientOriginalName();
-            $files['csvFile']->move($app['upload_dir'], $filename);
+            
+            if(preg_match('/.geojson/', $originalName)){
+                $geojsonfilename = time(). '.geojson';
+                $filename = time(). 'from-geojson.csv';
+                $files['csvFile']->move($app['upload_dir'], $geojsonfilename);
+
+                // now, read geojson file, convert to csv and save csv file
+                ini_set('memory_limit', '-1');
+                set_time_limit(0);
+                $file = $app['upload_dir'] . DIRECTORY_SEPARATOR . $geojsonfilename;
+                $geojson = file_get_contents($file);
+                $filedata = json_decode($geojson,true);
+
+                // get column names
+                $columnNames = array();
+                foreach ($filedata['features'][0]['properties'] as $key => $value) {
+                    $columnNames[] = $key;
+                }
+                $columnNames[] = "geometry";
+
+                // write new csv with geojson content
+                $writer = Writer::createFromFileObject(new SplTempFileObject()); //the CSV file will be created into a temporary File
+                $writer->setDelimiter(","); //the delimiter will be the tab character
+                $writer->setNewline("\r\n"); //use windows line endings for compatibility with some csv libraries
+                $writer->setEncodingFrom("utf-8");
+                
+                $writer->insertOne($columnNames);
+
+                $recs = array();
+                foreach ($filedata['features'] as $rec) {
+                    $fields = array();
+                    foreach ($rec['properties'] as $k => $v) {
+                        $fields[] = $v;
+                    }
+                    $fields[] = json_encode($rec['geometry']);
+                    $recs[] = $fields;
+                }
+                $writer->insertAll($recs);
+                file_put_contents($app['upload_dir'] . '/' . $filename, $writer);
+                //die();
+            }else{
+                $filename = time(). '.csv';
+                $files['csvFile']->move($app['upload_dir'], $filename);
+            }
+            
+
+            
 
             $data = $form->getData();
             $date = new \DateTime('now');
@@ -227,7 +273,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             } else {
                 $app['session']->getFlashBag()->set('alert', 'The file was uploaded!');
             }
-
+            
             return $app->redirect($app['url_generator']->generate('dataset-csvs', array('id' => $id)));
         }
 
@@ -249,13 +295,13 @@ class DataSetControllerProvider implements ControllerProviderInterface
             ->createBuilder('form')
 
             ->add('csvFile', 'file', array(
-                'label'     => 'Select a csvfile for upload',
+                'label'     => 'Select a csv or geojson file for upload',
                 'required'  => true,
                 'constraints' =>  array(
                     new Assert\NotBlank(),
                     new Assert\File(array(
-                        'maxSize'       => '4096k',
-                        'mimeTypes'     => array('text/csv', 'text/plain'),
+                        'maxSize'       => '409600k',
+                        'mimeTypes'     => array('text/csv', 'text/plain', 'application/json'),
                     )),
                     new Assert\Type('file')
                 )
@@ -680,6 +726,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         			$pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
         		}
                 if (isset($maptypes['data'])) {
+
                     foreach ($maptypes['data'] as $item) {
                         $pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
                     }
@@ -764,16 +811,17 @@ class DataSetControllerProvider implements ControllerProviderInterface
 					$pitid = $id . "/" . $pitid;
 	        	}
 
-	        	foreach ($maptypes['relation'] as $item) {
-	        		if($rec[$columnKeys[$item['column']]] != ""){
-		        		$relation = 	array(	'from' => $pitid,
-		        								'to' => $rec[$columnKeys[$item['column']]],
-		        								'label' => [$item['key']]
-		        								);
-		        		$relations[] = json_encode($relation);
-	        		}
-	        	}
-
+                if(isset($maptypes['relation'])){
+    	        	foreach ($maptypes['relation'] as $item) {
+    	        		if($rec[$columnKeys[$item['column']]] != ""){
+    		        		$relation = 	array(	'from' => $pitid,
+    		        								'to' => $rec[$columnKeys[$item['column']]],
+    		        								'label' => [$item['key']]
+    		        								);
+    		        		$relations[] = json_encode($relation);
+    	        		}
+    	        	}
+                }
 	        	
         	}
         }

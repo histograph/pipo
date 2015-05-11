@@ -49,14 +49,15 @@
 
         <div class="col-md-4">
 
-            <h1>Csv files dataset '{{ set.title }}'</h1>
+            <h1>Data files '{{ set.title }}'</h1>
 
-            <ul>
-                <li>Remember to provide a field with <strong>permanent id's</strong> for your records!</li>
-                <li>Make sure to give <strong>column names</strong> in the first row</li>
-                <li>Please use comma's for separators</li>
-                <li>It's ok to upload more than one csv and keep a bit of history</li>
-                <li>Check 'use' on the csv you want to use</li>
+            <ul>    
+                <li>Remember to provide a field / property with <strong>permanent id's</strong> for your records!</li>
+                <li>In csv, make sure to give <strong>column names</strong> in the first row</li>
+                <li>In csv, please use comma's for separators</li>
+                <li>It's ok to upload geojson. Just give your file the extension .geojson and we'll make it into a csv!</li>
+                <li>It's ok to upload more than one data file and keep a bit of history</li>
+                <li>Check 'use' on the data file you want to use</li>
             </ul>
 
 
@@ -66,7 +67,7 @@
             {{ form_widget(form) }}
 
             <div class="form-actions">
-                <button type="submit" class="btn btn-primary">Upload new csv</button>
+                <button type="submit" class="btn btn-primary">Upload new csv or geojson file</button>
             </div>
             {{ form_end(form) }}
 
@@ -83,7 +84,7 @@
                 askAPI('GET', uri, null, function(json){
                     var tr = '#row_'+json.id;
                     $(tr).remove();
-                    alertMessage('The csv was deleted');
+                    alertMessage('The data file was deleted');
                 });
             });
 
@@ -94,7 +95,7 @@
                     var tr = '#row_'+json.id;
                     $('table .choose').find('i').attr('class','fa fa-square-o');
                     $(tr+' .choose').find('i').attr('class','fa fa-check-square');
-                    alertMessage('The csv was selected');
+                    alertMessage('The data file was selected');
                 });
             });
 
