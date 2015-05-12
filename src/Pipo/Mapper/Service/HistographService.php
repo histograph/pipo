@@ -40,6 +40,7 @@ class HistographService {
     {
         $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '/pits';
 
+        // todo ndjson not as json body, but www-form encoded
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
         $response = $this->client->post(
             $uri,
