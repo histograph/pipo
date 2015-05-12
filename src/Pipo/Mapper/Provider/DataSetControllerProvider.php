@@ -236,17 +236,23 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 $writer->setEncodingFrom("utf-8");
                 
                 $writer->insertOne($columnNames);
-
+                
                 $recs = array();
                 foreach ($filedata['features'] as $rec) {
                     $fields = array();
                     foreach ($rec['properties'] as $k => $v) {
-                        $fields[] = $v;
+                        if($v!=null){
+                            $fields[] = $v;
+                        }else{
+                            $fields[] = "";
+                        }
                     }
                     $fields[] = json_encode($rec['geometry']);
                     $recs[] = $fields;
                 }
+
                 $writer->insertAll($recs);
+
                 file_put_contents($app['upload_dir'] . '/' . $filename, $writer);
 
                 // all done, now delete initial geojson file
