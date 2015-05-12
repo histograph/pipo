@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Validator\Constraints as Assert;
 
 use League\Csv\Writer;
-use SplTempFileObject;
 
 /**
  * Class DataSetControllerProvider
@@ -41,12 +40,15 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $controllers->get('/exportsource/{id}', array(new self(), 'exportSource'))->bind('dataset-export-source')->value('id', null)->assert('id', '[a-z0-9-]+');
         $controllers->get('/exportrelations/{id}', array(new self(), 'exportRelations'))->bind('dataset-export-relations')->value('id', null)->assert('id', '[a-z0-9-]+');
         $controllers->get('/exportpits/{id}', array(new self(), 'exportPits'))->bind('dataset-export-pits')->value('id', null)->assert('id', '[a-z0-9-]+');
-        
+
         $controllers->get('/files/{id}/{name}', array(new self(), 'serveFile'))->bind('dataset-serve-file')->value('id', null)->assert('id', '[a-z0-9-]+');
 
         $controllers->get('/delete/{id}', array(new self(), 'deleteSet'))->bind('dataset-delete')->assert('id', '[a-z0-9-]+');
 
-        $controllers->get('/postsource/{id}', array(new self(), 'postSet'))->bind('dataset-post-source')->assert('id', '[a-z0-9-]+');
+        // Calls to the API
+        $controllers->get('/postsource/{id}', array(new self(), 'postSource'))->bind('dataset-post-source')->assert('id', '[a-z0-9-]+');
+        $controllers->get('/postpits/{id}', array(new self(), 'postPits'))->bind('dataset-post-pits')->assert('id', '[a-z0-9-]+');
+        $controllers->get('/postrelations/{id}', array(new self(), 'postRelations'))->bind('dataset-post-relations')->assert('id', '[a-z0-9-]+');
         return $controllers;
     }
 
@@ -75,7 +77,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $form = $this->getNewDatasetForm($app);
         $form->bind($request);
         if ($form->isValid()) {
-            
+
             $data = $form->getData();
             $date = new \DateTime('now');
 
@@ -175,7 +177,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         return $app['twig']->render('datasets/list.html.twig', array('datasets' => $datasets));
     }
 
-    
+
     /**
      * View csvs with dataset
      *
@@ -189,7 +191,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $form = $this->getUploadForm($app);
 
         return $app['twig']->render('datasets/csvs.html.twig', array(
-            'set' => $dataset, 
+            'set' => $dataset,
             'csvs' => $csvs,
             'form' => $form->createView()
             ));
@@ -207,63 +209,10 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $form->bind($request);
         if ($form->isValid()) {
             $files = $request->files->get($form->getName());
-            
+
+            $filename = time(). '.csv';
             $originalName = $files['csvFile']->getClientOriginalName();
-            
-            if(preg_match('/.geojson/', $originalName)){
-                $geojsonfilename = time(). '.geojson';
-                $filename = time(). 'from-geojson.csv';
-                $files['csvFile']->move($app['upload_dir'], $geojsonfilename);
-
-                // now, read geojson file, convert to csv and save csv file
-                ini_set('memory_limit', '-1');
-                set_time_limit(0);
-                $file = $app['upload_dir'] . DIRECTORY_SEPARATOR . $geojsonfilename;
-                $geojson = file_get_contents($file);
-                $filedata = json_decode($geojson,true);
-
-                // get column names
-                $columnNames = array();
-                foreach ($filedata['features'][0]['properties'] as $key => $value) {
-                    $columnNames[] = $key;
-                }
-                $columnNames[] = "geometry";
-
-                // write new csv with geojson content
-                $writer = Writer::createFromFileObject(new SplTempFileObject()); //the CSV file will be created into a temporary File
-                $writer->setDelimiter(","); //the delimiter will be the tab character
-                $writer->setNewline("\r\n"); //use windows line endings for compatibility with some csv libraries
-                $writer->setEncodingFrom("utf-8");
-                
-                $writer->insertOne($columnNames);
-                
-                $recs = array();
-                foreach ($filedata['features'] as $rec) {
-                    $fields = array();
-                    foreach ($rec['properties'] as $k => $v) {
-                        if($v!=null){
-                            $fields[] = $v;
-                        }else{
-                            $fields[] = "";
-                        }
-                    }
-                    $fields[] = json_encode($rec['geometry']);
-                    $recs[] = $fields;
-                }
-
-                $writer->insertAll($recs);
-
-                file_put_contents($app['upload_dir'] . '/' . $filename, $writer);
-
-                // all done, now delete initial geojson file
-                unlink($app['upload_dir'] . DIRECTORY_SEPARATOR . $geojsonfilename);
-            }else{
-                $filename = time(). '.csv';
-                $files['csvFile']->move($app['upload_dir'], $filename);
-            }
-            
-
-            
+            $files['csvFile']->move($app['upload_dir'], $filename);
 
             $data = $form->getData();
             $date = new \DateTime('now');
@@ -281,7 +230,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             } else {
                 $app['session']->getFlashBag()->set('alert', 'The file was uploaded!');
             }
-            
+
             return $app->redirect($app['url_generator']->generate('dataset-csvs', array('id' => $id)));
         }
 
@@ -303,13 +252,13 @@ class DataSetControllerProvider implements ControllerProviderInterface
             ->createBuilder('form')
 
             ->add('csvFile', 'file', array(
-                'label'     => 'Select a csv or geojson file for upload',
+                'label'     => 'Select a csvfile for upload',
                 'required'  => true,
                 'constraints' =>  array(
                     new Assert\NotBlank(),
                     new Assert\File(array(
-                        'maxSize'       => '409600k',
-                        'mimeTypes'     => array('text/csv', 'text/plain', 'application/json'),
+                        'maxSize'       => '4096k',
+                        'mimeTypes'     => array('text/csv', 'text/plain'),
                     )),
                     new Assert\Type('file')
                 )
@@ -355,7 +304,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 $maptypes[$v['mapping_type']][$v['id']]['text'] = $v['value'];
                 $maptypes[$v['mapping_type']][$v['id']]['key'] = $v['the_key'];
             }
-            
+
         }
 
         $possibleProperties = array("name","geometry","type","hasBeginning","hasEnd","lat","long");
@@ -417,8 +366,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         // props
         foreach($data as $k => $v){
-            
-            if(preg_match("/^prop-([^-]+)$/",$k,$found)){   
+
+            if(preg_match("/^prop-([^-]+)$/",$k,$found)){
                 if(isset($_POST['prop-' . $found[1] . '-text'])){
                     $insdata = array('dataset_id' => $id, 'mapping_type' => 'property', 'the_key' => $found[1], 'value_in_field' => $v, 'value' => $_POST['prop-' . $found[1] . '-text']);
                 }else{
@@ -449,8 +398,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $app['session']->getFlashBag()->set('alert', 'Mapping has been saved!');
         return $app->redirect($app['url_generator']->generate('dataset-map', array('id' => $id)));
 
-        
-        
+
+
     }
 
     /**
@@ -461,7 +410,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
      */
     public function describeSet(Application $app, $id)
     {
-        
+
         $dataset = $app['dataset_service']->getDataset($id);
 
         $form = $this->getDescriptionForm($app, $dataset);
@@ -482,16 +431,16 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $data = $request->request->get('form');
         unset($data['_token']);
 
-        if ($app['dataset_service']->storeDescription($data)) { 
+        if ($app['dataset_service']->storeDescription($data)) {
 
             $app['session']->getFlashBag()->set('alert', 'Description has been saved!');
             return $app->redirect($app['url_generator']->generate('dataset-describe', array('id' => $id)));
-        
+
         } else{
             $app['session']->getFlashBag()->set('error', 'Sorry, but the update wasn\'t succesful');
             return $app->redirect($app['url_generator']->generate('dataset-describe', array('id' => $id)));
         }
-        
+
     }
 
     /**
@@ -603,22 +552,48 @@ class DataSetControllerProvider implements ControllerProviderInterface
      */
     public function validateSet(Application $app, $id)
     {
-        
+
         $dataset = $app['dataset_service']->getDataset($id);
 
         return $app['twig']->render('datasets/validate.html.twig', array('set' => $dataset));
     }
 
     /**
-     * Post the set to the histograph API
+     * Post the sources file to the histograph API
      *
      * @param Application $app
      * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
      */
-    public function postSet(Application $app, $id)
+    public function postSource(Application $app, $id)
     {
-        // TODO get the contents of the file or something
-        $app['histograph_service']->createNewHistographSource('ddd');
+        if (!file_exists($app['export_dir'] . '/' . $id . '/source.json')) {
+            $app['session']->getFlashBag()->set('alert', 'Het source.json bestand bestaat nog niet.');
+            return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+        }
+
+        $json = file_get_contents($app['export_dir'] . '/' . $id . '/source.json');
+        $response = $app['histograph_service']->createNewHistographSource($json);
+
+        // todo add a flash message and send the user somewhere
+    }
+
+    /**
+     * Post the pits file to the histograph API
+     *
+     * @param Application $app
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function postPits(Application $app, $id)
+    {
+        if (!file_exists($app['export_dir'] . '/' . $id . '/pits.ndjson')) {
+            $app['session']->getFlashBag()->set('alert', 'Het pits.ndjson bestand bestaat nog niet.');
+            return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+        }
+        $json = file_get_contents($app['export_dir'] . '/' . $id . '/pits.ndjson');
+        $response = $app['histograph_service']->addPitsToHistographSource($id, $json);
+        // todo add a flash message and send the user somewhere
     }
 
     /**
@@ -641,7 +616,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         if(file_exists($app['export_dir'] . '/' . $id . '/relations.ndjson')){
             $files['relations'] = '/files/' . $id . '/relations.ndjson';
         }
-        
+
 
         return $app['twig']->render('datasets/export.html.twig', array('set' => $dataset, 'files' => $files));
     }
@@ -667,9 +642,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
         }
 
         file_put_contents( $dir . '/source.json', $sourcejson);
-        
+
         $app['session']->getFlashBag()->set('alert', 'Er is een source.json aangemaakt of overschreven.');
-        
+
         return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
     }
 
@@ -683,7 +658,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
     public function exportPits(Application $app, $id)
     {
         $dataset = $app['dataset_service']->getDataset($id);
-        
+
         // get csv
         $usecsv =  $app['dataset_service']->getCsv($dataset['use_csv_id']);
         $file = $app['upload_dir'] . DIRECTORY_SEPARATOR . $usecsv['filename'];
@@ -698,18 +673,18 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $columnNames = array_shift($recs); // first row holds column names, right?
         $columnKeys = array_flip($columnNames);
 
-        
+
         // get mappings (what property, relation of data is held in what field?)
 		$mappings = $app['dataset_service']->getMappings($id);
 		foreach ($mappings as $k => $v) {
-            
+
             $maptypes[$v['mapping_type']][$v['id']]['column'] = $v['value_in_field'];
             $maptypes[$v['mapping_type']][$v['id']]['text'] = $v['value'];
             $maptypes[$v['mapping_type']][$v['id']]['key'] = $v['the_key'];
-        
-            
+
+
         }
-		
+
 		// attach the right values to the keys expected by Histograph and create ndjson
 		$pits = array();
         $lastkey = count($columnNames)-1;
@@ -726,7 +701,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
 	        		if($prop['column']!=""){
 	        			$pit[$prop['key']] = $rec[$columnKeys[$prop['column']]];
 	        		}
-	        		
+
 
 	        	}
 	        	// if lat & long and no geometry, make geojson from lat & long values
@@ -734,7 +709,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
         			$pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
         		}
                 if (isset($maptypes['data'])) {
-
                     foreach ($maptypes['data'] as $item) {
                         $pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
                     }
@@ -754,9 +728,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
         }
 
         file_put_contents( $dir . '/pits.ndjson', $ndjson);
-        
+
         $app['session']->getFlashBag()->set('alert', 'Er is een pits.ndjson aangemaakt of overschreven.');
-        
+
         return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
     }
 
@@ -770,7 +744,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
     public function exportRelations(Application $app, $id)
     {
         $dataset = $app['dataset_service']->getDataset($id);
-        
+
         // get csv
         $usecsv =  $app['dataset_service']->getCsv($dataset['use_csv_id']);
         $file = $app['upload_dir'] . DIRECTORY_SEPARATOR . $usecsv['filename'];
@@ -785,25 +759,25 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $columnNames = array_shift($recs); // first row holds column names, right?
         $columnKeys = array_flip($columnNames);
 
-        
+
         // get mappings (what property, relation of data is held in what field?)
 		$mappings = $app['dataset_service']->getMappings($id);
 		foreach ($mappings as $k => $v) {
-            
+
             $maptypes[$v['mapping_type']][$v['id']]['column'] = $v['value_in_field'];
             $maptypes[$v['mapping_type']][$v['id']]['text'] = $v['value'];
             $maptypes[$v['mapping_type']][$v['id']]['key'] = $v['the_key'];
-        
-            
+
+
         }
-		
+
 		// attach the right values to the keys expected by Histograph and create ndjson
 		$relations = array();
         $lastkey = count($columnNames)-1;
         foreach ($recs as $recKey => $rec) {
         	$pitid = false;
         	if(isset($rec[$lastkey])){ // first csv i tried ended with an empty line, make sure rec has all expected columns
-	        	
+
 	        	foreach ($maptypes['property'] as $prop) {
 
 	        		if($prop['key']=="id"){
@@ -819,17 +793,16 @@ class DataSetControllerProvider implements ControllerProviderInterface
 					$pitid = $id . "/" . $pitid;
 	        	}
 
-                if(isset($maptypes['relation'])){
-    	        	foreach ($maptypes['relation'] as $item) {
-    	        		if($rec[$columnKeys[$item['column']]] != ""){
-    		        		$relation = 	array(	'from' => $pitid,
-    		        								'to' => $rec[$columnKeys[$item['column']]],
-    		        								'label' => [$item['key']]
-    		        								);
-    		        		$relations[] = json_encode($relation);
-    	        		}
-    	        	}
-                }
+	        	foreach ($maptypes['relation'] as $item) {
+	        		if($rec[$columnKeys[$item['column']]] != ""){
+		        		$relation = 	array(	'from' => $pitid,
+		        								'to' => $rec[$columnKeys[$item['column']]],
+		        								'label' => [$item['key']]
+		        								);
+		        		$relations[] = json_encode($relation);
+	        		}
+	        	}
+
 	        	
         	}
         }

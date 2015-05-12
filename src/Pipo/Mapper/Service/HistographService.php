@@ -18,8 +18,7 @@ class HistographService {
     /**
      * @var string $baseUri Uri of the service to call
      */
-    //private $baseUri = 'http://api.histograph.io';
-    private $baseUri = 'http://bertwaag.local:3000';
+    private $baseUri = 'https://api.histograph.io';
 
     protected $app;
 
@@ -31,6 +30,66 @@ class HistographService {
         $this->apiPass = $app['api_pass'];
     }
 
+    /**
+     * Add pits to an existing Histograph source
+     *
+     * @param string $sourceId
+     * @param string $json
+     */
+    public function addPitsToHistographSource($sourceId, $json)
+    {
+        $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '/pits';
+
+        $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
+        $response = $this->client->post(
+            $uri,
+            array(
+                'headers' => array(
+                    'Authorization' => 'Basic ' . $auth,
+                    'Accept' => 'application/json',
+                ),
+                'body' => json_encode($json)
+            ));
+
+        //var_dump($response);
+        var_dump($response->json());
+
+        die;
+    }
+
+    /**
+     * Add relations to an existing Histograph source
+     *
+     * @param string $sourceId
+     * @param string $json
+     */
+    public function addRelationsToHistographSource($sourceId, $json)
+    {
+        $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '/relations';
+
+        $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
+        $response = $this->client->post(
+            $uri,
+            array(
+                'headers' => array(
+                    'Authorization' => 'Basic ' . $auth,
+                    'Accept' => 'application/json',
+                ),
+                'body' => json_encode($json)
+            ));
+
+        //var_dump($response);
+        var_dump($response->json());
+
+        die;
+    }
+
+    /**
+     * POST sources file to the API
+     * If a set with the same id already exists it will be overwritten
+     *
+     * @param $json
+     */
     public function createNewHistographSource($json)
     {
         $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT;
@@ -40,10 +99,10 @@ class HistographService {
             $uri,
             array(
                 'headers' => array(
-                    'Authorization' => 'Basic '.$auth,
+                    'Authorization' => 'Basic ' . $auth,
                     'Accept' =>'application/json',
                 ),
-                'body' => json_encode('{"id":"poorterding","title":"Carnaval onzin","description":"Bla die bla bla","license":"GPL","author":"@meme","website":"www.ergensheen.nl","edits":"ik heb er iets mee gedaan","editor":"Petra","sourceCreationDate":null}')
+                'body' => json_encode($json)
             ));
 
         //var_dump($response);
