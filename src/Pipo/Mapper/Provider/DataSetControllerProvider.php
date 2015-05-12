@@ -248,7 +248,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 }
                 $writer->insertAll($recs);
                 file_put_contents($app['upload_dir'] . '/' . $filename, $writer);
-                //die();
+
+                // all done, now delete initial geojson file
+                unlink($app['upload_dir'] . DIRECTORY_SEPARATOR . $geojsonfilename);
             }else{
                 $filename = time(). '.csv';
                 $files['csvFile']->move($app['upload_dir'], $filename);
