@@ -86,27 +86,73 @@ class HistographService {
     }
 
     /**
+     * Creates a new or updates an existing source
+     *
+     * @param $sourceId
+     * @param $json
+     */
+    public function saveHistographSource($sourceId, $json)
+    {
+        $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
+        $response = $this->client->get(
+            $uri,
+            array(
+                'headers' => array(
+                    'Content-type' => 'application/json',
+                    'Accept' => 'application/json',
+                ),
+            ));
+    }
+
+    public function updateHistographSource($sourceId, $json)
+    {
+        $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
+        $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
+        $response = $this->client->patch(
+            $uri,
+            array(
+                'headers' => array(
+                    'Content-type' => 'application/json',
+                    'Authorization' => 'Basic ' . $auth,
+                    'Accept' => 'application/json',
+                ),
+                'body' => $json
+            ));
+
+        var_dump($response->json());
+
+        if ($response->getStatusCode() === 200) {
+
+        } else {
+
+        }
+        die;
+    }
+
+        /**
      * POST sources file to the API
-     * If a set with the same id already exists it will be overwritten
      *
      * @param $json
      */
     public function createNewHistographSource($json)
     {
         $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT;
-
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
         $response = $this->client->post(
             $uri,
             array(
                 'headers' => array(
+                    'Content-type' => 'application/json',
                     'Authorization' => 'Basic ' . $auth,
                     'Accept' =>'application/json',
                 ),
-                'body' => json_encode($json)
+                'body' => $json
+                //'body' => json_encode('{"id":"poorterding","title":"Carnaval onzin","description":"Bla die bla bla","license":"GPL","author":"@meme","website":"www.ergensheen.nl","edits":"ik heb er iets mee gedaan","editor":"Petra","sourceCreationDate":null}')
             ));
+        // https://github.com/histograph/api
+        var_dump($this->client);
+        die;
 
-        //var_dump($response);
         var_dump($response->json());
 
         die;

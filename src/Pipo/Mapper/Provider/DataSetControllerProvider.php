@@ -194,7 +194,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             'set' => $dataset,
             'csvs' => $csvs,
             'form' => $form->createView()
-            ));
+        ));
     }
 
     /**
@@ -316,37 +316,37 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         // get all relations and pittypes, but where from??
         $relationTypes = array(     "hg:absorbed",
-                                    "hg:absorbedBy",
-                                    "hg:contains",
-                                    "hg:hasGeoFeature",
-                                    "hg:hasName",
-                                    "hg:hasPitType",
-                                    "hg:hasProvEntity",
-                                    "hg:hasTimeTemporalEntity",
-                                    "hg:isUsedFor",
-                                    "hg:sameHgConcept",
-                                    "hg:within");
+            "hg:absorbedBy",
+            "hg:contains",
+            "hg:hasGeoFeature",
+            "hg:hasName",
+            "hg:hasPitType",
+            "hg:hasProvEntity",
+            "hg:hasTimeTemporalEntity",
+            "hg:isUsedFor",
+            "hg:sameHgConcept",
+            "hg:within");
         $pitTypes = array( "hg:Street",
-                            "hg:Country",
-                            "hg:Province",
-                            "hg:Municipality",
-                            "hg:Place",
-                            "hg:Water",
-                            "hg:Area",
-                            "hg:Building",
-                            "hg:Monument",
-                            "hg:Neighbourhood");
+            "hg:Country",
+            "hg:Province",
+            "hg:Municipality",
+            "hg:Place",
+            "hg:Water",
+            "hg:Area",
+            "hg:Building",
+            "hg:Monument",
+            "hg:Neighbourhood");
 
 
         return $app['twig']->render('datasets/map.html.twig', array(
-                                                                'set' => $dataset,
-                                                                'properties' => $maptypes['property'],
-                                                                'relations' => $maptypes['relation'],
-                                                                'data' => $maptypes['data'],
-                                                                'columns' => $columnNames,
-                                                                'relationtypes' => $relationTypes,
-                                                                'pittypes' => $pitTypes
-                                                                ));
+            'set' => $dataset,
+            'properties' => $maptypes['property'],
+            'relations' => $maptypes['relation'],
+            'data' => $maptypes['data'],
+            'columns' => $columnNames,
+            'relationtypes' => $relationTypes,
+            'pittypes' => $pitTypes
+        ));
     }
 
     /**
@@ -572,9 +572,15 @@ class DataSetControllerProvider implements ControllerProviderInterface
             return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
         }
 
-        $json = file_get_contents($app['export_dir'] . '/' . $id . '/source.json');
-        $response = $app['histograph_service']->createNewHistographSource($json);
+        // todo, check whether we have an existing or a new resource, PATH or post
+        if ($id = 'carnaval') {
+            $json = file_get_contents($app['export_dir'] . '/' . $id . '/source.json');
+            $response = $app['histograph_service']->updateHistographSource($id, $json);
 
+        } else {
+            $json = file_get_contents($app['export_dir'] . '/' . $id . '/source.json');
+            $response = $app['histograph_service']->createNewHistographSource($json);
+        }
         // todo add a flash message and send the user somewhere
     }
 
@@ -675,8 +681,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
 
         // get mappings (what property, relation of data is held in what field?)
-		$mappings = $app['dataset_service']->getMappings($id);
-		foreach ($mappings as $k => $v) {
+        $mappings = $app['dataset_service']->getMappings($id);
+        foreach ($mappings as $k => $v) {
 
             $maptypes[$v['mapping_type']][$v['id']]['column'] = $v['value_in_field'];
             $maptypes[$v['mapping_type']][$v['id']]['text'] = $v['value'];
@@ -685,40 +691,40 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         }
 
-		// attach the right values to the keys expected by Histograph and create ndjson
-		$pits = array();
+        // attach the right values to the keys expected by Histograph and create ndjson
+        $pits = array();
         $lastkey = count($columnNames)-1;
         foreach ($recs as $recKey => $rec) {
 
-        	$pit = array();
+            $pit = array();
 
-        	if(isset($rec[$lastkey])){ // first csv i tried ended with an empty line, make sure rec has all expected columns
-	        	foreach ($maptypes['property'] as $prop) {
+            if(isset($rec[$lastkey])){ // first csv i tried ended with an empty line, make sure rec has all expected columns
+                foreach ($maptypes['property'] as $prop) {
 
-	        		if($prop['text']!=""){
-	        			$pit[$prop['key']] = $prop['text'];
-	        		}
-	        		if($prop['column']!=""){
-	        			$pit[$prop['key']] = $rec[$columnKeys[$prop['column']]];
-	        		}
+                    if($prop['text']!=""){
+                        $pit[$prop['key']] = $prop['text'];
+                    }
+                    if($prop['column']!=""){
+                        $pit[$prop['key']] = $rec[$columnKeys[$prop['column']]];
+                    }
 
 
-	        	}
-	        	// if lat & long and no geometry, make geojson from lat & long values
-        		if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
-        			$pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
-        		}
+                }
+                // if lat & long and no geometry, make geojson from lat & long values
+                if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
+                    $pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
+                }
                 if (isset($maptypes['data'])) {
                     foreach ($maptypes['data'] as $item) {
                         $pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
                     }
                 }
 
-	        	if(!preg_match("/^" . $id . "\//", $pit['id'])){ // format id as sourceid/itemid if not already
-					$pit['id'] = $id . "/" . $pit['id'];
-	        	}
-	        	$pits[] = json_encode($pit);
-        	}
+                if(!preg_match("/^" . $id . "\//", $pit['id'])){ // format id as sourceid/itemid if not already
+                    $pit['id'] = $id . "/" . $pit['id'];
+                }
+                $pits[] = json_encode($pit);
+            }
         }
         $ndjson = implode("\n",$pits);
 
@@ -761,8 +767,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
 
         // get mappings (what property, relation of data is held in what field?)
-		$mappings = $app['dataset_service']->getMappings($id);
-		foreach ($mappings as $k => $v) {
+        $mappings = $app['dataset_service']->getMappings($id);
+        foreach ($mappings as $k => $v) {
 
             $maptypes[$v['mapping_type']][$v['id']]['column'] = $v['value_in_field'];
             $maptypes[$v['mapping_type']][$v['id']]['text'] = $v['value'];
@@ -771,40 +777,40 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         }
 
-		// attach the right values to the keys expected by Histograph and create ndjson
-		$relations = array();
+        // attach the right values to the keys expected by Histograph and create ndjson
+        $relations = array();
         $lastkey = count($columnNames)-1;
         foreach ($recs as $recKey => $rec) {
-        	$pitid = false;
-        	if(isset($rec[$lastkey])){ // first csv i tried ended with an empty line, make sure rec has all expected columns
+            $pitid = false;
+            if(isset($rec[$lastkey])){ // first csv i tried ended with an empty line, make sure rec has all expected columns
 
-	        	foreach ($maptypes['property'] as $prop) {
+                foreach ($maptypes['property'] as $prop) {
 
-	        		if($prop['key']=="id"){
-	        			$pitid = $rec[$columnKeys[$prop['column']]];
-	        		}
+                    if($prop['key']=="id"){
+                        $pitid = $rec[$columnKeys[$prop['column']]];
+                    }
 
-	        	}
-	        	if(!$pitid){
-	        		$app['session']->getFlashBag()->set('error', 'No pit id has been defined');
-        			return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
-	        	}
-	        	if(!preg_match("/^" . $id . "\//", $pitid)){ // format id as sourceid/itemid if not already
-					$pitid = $id . "/" . $pitid;
-	        	}
+                }
+                if(!$pitid){
+                    $app['session']->getFlashBag()->set('error', 'No pit id has been defined');
+                    return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+                }
+                if(!preg_match("/^" . $id . "\//", $pitid)){ // format id as sourceid/itemid if not already
+                    $pitid = $id . "/" . $pitid;
+                }
 
-	        	foreach ($maptypes['relation'] as $item) {
-	        		if($rec[$columnKeys[$item['column']]] != ""){
-		        		$relation = 	array(	'from' => $pitid,
-		        								'to' => $rec[$columnKeys[$item['column']]],
-		        								'label' => [$item['key']]
-		        								);
-		        		$relations[] = json_encode($relation);
-	        		}
-	        	}
+                foreach ($maptypes['relation'] as $item) {
+                    if($rec[$columnKeys[$item['column']]] != ""){
+                        $relation = 	array(	'from' => $pitid,
+                            'to' => $rec[$columnKeys[$item['column']]],
+                            'label' => [$item['key']]
+                        );
+                        $relations[] = json_encode($relation);
+                    }
+                }
 
-	        	
-        	}
+
+            }
         }
         $ndjson = implode("\n",$relations);
 
@@ -814,9 +820,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
         }
 
         file_put_contents( $dir . '/relations.ndjson', $ndjson);
-        
+
         $app['session']->getFlashBag()->set('alert', 'Er is een relations.ndjson aangemaakt of overschreven.');
-        
+
         return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
     }
 
