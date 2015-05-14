@@ -44,22 +44,27 @@ class HistographService {
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
 
         try {
-            $response = $this->client->post(
+            $response = $this->client->put(
                 $uri,
                 array(
                     'headers' => array(
                         'Content-type' => 'application/x-ndjson',
+                        'Mime-type' => 'application/x-ndjson',
                         'Authorization' => 'Basic ' . $auth,
                         'Accept' => 'application/json',
                     ),
                     'body' => $json
                 ));
 
-            if ($response->getStatusCode() === 201) {
+            if ($response->getStatusCode() === 200) {
                 return true;
+            } else {
+                return $response->json()['message'];
             }
         } catch (ClientException $e) { // 400 errors
             if ($e->hasResponse()) {
+                //print $e->getRequest();
+                //print ($e->getResponse());
                 return $e->getResponse()->json()['message'];
             }
         };
@@ -70,26 +75,35 @@ class HistographService {
      *
      * @param string $sourceId
      * @param string $json
+     * @return bool
      */
     public function addRelationsToHistographSource($sourceId, $json)
     {
         $uri = $this->baseUri . self::SOURCES_ENTRY_POINT . '/' . $sourceId . '/relations';
-
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
-        $response = $this->client->post(
-            $uri,
-            array(
-                'headers' => array(
-                    'Authorization' => 'Basic ' . $auth,
-                    'Accept' => 'application/json',
-                ),
-                'body' => json_encode($json)
-            ));
+        try {
+            $response = $this->client->put(
+                $uri,
+                array(
+                    'headers' => array(
+                        'Content-type' => 'application/x-ndjson',
+                        'Mime-type' => 'application/x-ndjson',
+                        'Authorization' => 'Basic ' . $auth,
+                        'Accept' => 'application/json',
+                    ),
+                    'body' => $json
+                ));
 
-        //var_dump($response);
-        var_dump($response->json());
-
-        die;
+            if ($response->getStatusCode() === 200) {
+                return true;
+            }
+        } catch (ClientException $e) { // 400 errors
+            if ($e->hasResponse()) {
+                //print $e->getRequest();
+                print ($e->getResponse());
+                return $e->getResponse()->json()['error'];
+            }
+        };
     }
 
     /**
@@ -101,7 +115,7 @@ class HistographService {
      */
     public function saveHistographSource($sourceId, $json)
     {
-        $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
+        $uri = $this->baseUri . self::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
         try {
             $response = $this->client->get(
                 $uri,
@@ -114,6 +128,8 @@ class HistographService {
 
             if ($response->getStatusCode() === 200) { // source already exists, call update
                 return $this->updateHistographSource($sourceId, $json);
+            } else {
+                return $response->json()['message'];
             }
         } catch (ClientException $e) { // 400 errors
             if ($e->hasResponse()) {
@@ -127,6 +143,40 @@ class HistographService {
         };
     }
 
+
+    /**
+     * Deletes the entire source from Histograph
+     *
+     * @param $sourceId
+     * @return mixed
+     */
+    public function deleteHistographSource($sourceId)
+    {
+        $uri = $this->baseUri . self::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
+        $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
+
+        Try {
+            $response = $this->client->delete(
+                $uri,
+                array(
+                    'headers' => array(
+                        'Authorization' => 'Basic ' . $auth,
+                        'Accept' => 'application/json',
+                    ),
+                ));
+
+            if ($response->getStatusCode() === 20) {
+                return true;
+            } else {
+                return $response->json()['message'];
+            }
+        } catch (ClientException $e) {
+            if ($e->hasResponse()) {
+                return $e->getResponse()->json()['message'];
+            }
+        }
+    }
+
     /**
      * Updates the description etc of an existing source
      *
@@ -136,7 +186,7 @@ class HistographService {
      */
     public function updateHistographSource($sourceId, $json)
     {
-        $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
+        $uri = $this->baseUri . self::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
 
         try {

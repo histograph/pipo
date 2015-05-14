@@ -49,6 +49,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $controllers->get('/postsource/{id}', array(new self(), 'postSource'))->bind('dataset-post-source')->assert('id', '[a-z0-9-]+');
         $controllers->get('/postpits/{id}', array(new self(), 'postPits'))->bind('dataset-post-pits')->assert('id', '[a-z0-9-]+');
         $controllers->get('/postrelations/{id}', array(new self(), 'postRelations'))->bind('dataset-post-relations')->assert('id', '[a-z0-9-]+');
+        $controllers->get('/postdelete/{id}', array(new self(), 'postDelete'))->bind('dataset-post-delete')->assert('id', '[a-z0-9-]+');
         return $controllers;
     }
 
@@ -602,6 +603,52 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         if (true === $response) {
             $app['session']->getFlashBag()->set('alert', 'The PiTs have been added to the API. It might take a while to process them all (depending on the size of your set). Please check the API or viewer later.');
+        } else {
+            $app['session']->getFlashBag()->set('error', 'Oops, something went wrong. The API returned the following error: ' . $response);
+        }
+
+        return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+    }
+
+    /**
+     * POST the relations to the API
+     *
+     * @param Application $app
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function postRelations(Application $app, $id)
+    {
+        if (!file_exists($app['export_dir'] . '/' . $id . '/relations.ndjson')) {
+            $app['session']->getFlashBag()->set('alert', 'The relations.ndjson file does not exist yet. You have to create it before we can send it to the API.');
+            return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+        }
+        $json = file_get_contents($app['export_dir'] . '/' . $id . '/relations.ndjson');
+        $response = $app['histograph_service']->addRelationsToHistographSource($id, $json);
+
+        if (true === $response) {
+            $app['session']->getFlashBag()->set('alert', 'The relations have been added to the API. It might take a while to process them all (depending on the size of your set). Please check the API or viewer later.');
+        } else {
+            $app['session']->getFlashBag()->set('error', 'Oops, something went wrong. The API returned the following error: ' . $response);
+        }
+
+        return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+    }
+
+    /**
+     * POST a DELETE request for this source to the API
+     *
+     * @param Application $app
+     * @param $id
+     * @return \Symfony\Component\HttpFoundation\RedirectResponse
+     */
+    public function postDelete(Application $app, $id)
+    {
+        $id = 'carnaval2';
+        $response = $app['histograph_service']->deleteHistographSource($id);
+
+        if (true === $response) {
+            $app['session']->getFlashBag()->set('alert', 'The source has been removed completely.');
         } else {
             $app['session']->getFlashBag()->set('error', 'Oops, something went wrong. The API returned the following error: ' . $response);
         }

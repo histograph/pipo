@@ -30,8 +30,8 @@
             	
             	<a href="{{ path('dataset-export-pits', { 'id': set.id }) }}" class="btn btn-primary">renew pits.ndjson</a>
 
-            	<button class="btn btn-primary">export pits.ndjson to Histograph</button>
-           
+                <a href="{{ path('dataset-post-pits', { 'id': set.id }) }}" class="btn btn-primary">export pits.ndjson to Histograph</a>
+
         	{% else %}
 
         		<h3>no pits.ndjson yet</h3>
@@ -40,14 +40,12 @@
             {% endif %} 
 
 
-
-
             {% if files.relations is defined %}
             	<h3><a href="{{ files.relations }}">relations.ndjson</a></h3>
             	
             	<a href="{{ path('dataset-export-relations', { 'id': set.id }) }}" class="btn btn-primary">renew relations.ndjson</a>
 
-            	<button class="btn btn-primary">export relations.ndjson to Histograph</button>
+                <a href="{{ path('dataset-post-relations', { 'id': set.id }) }}" class="btn btn-primary">export relations.ndjson to Histograph</a>
            
         	{% else %}
 
@@ -56,17 +54,15 @@
         		<a href="{{ path('dataset-export-relations', { 'id': set.id }) }}" class="btn btn-primary">create relations.ndjson</a>
             {% endif %} 
 
-            
-            
-            
 
         </div>
         <div class="col-md-4">
 
             <h1>Export dataset '{{ set.title }}'</h1>
 
-            
-
+            <p>Or... the danger button</p>
+            <a href="{{ path('dataset-post-delete', { 'id': set.id }) }}" class="btn btn-danger">Delete the entire source from Histograph</a>
+            <p>This will remove everything: pits, relations and the source file! <strong>Use with caution.</strong></p>
         </div>
     </div>
 
