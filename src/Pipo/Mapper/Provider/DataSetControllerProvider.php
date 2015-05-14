@@ -822,13 +822,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         // get mappings (what property, relation of data is held in what field?)
         $mappings = $app['dataset_service']->getMappings($id);
-        foreach ($mappings as $k => $v) {
 
+        foreach ($mappings as $k => $v) {
             $maptypes[$v['mapping_type']][$v['id']]['column'] = $v['value_in_field'];
             $maptypes[$v['mapping_type']][$v['id']]['text'] = $v['value'];
             $maptypes[$v['mapping_type']][$v['id']]['key'] = $v['the_key'];
-
-
         }
 
         // attach the right values to the keys expected by Histograph and create ndjson
@@ -857,7 +855,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     if($rec[$columnKeys[$item['column']]] != ""){
                         $relation = 	array(	'from' => $pitid,
                             'to' => $rec[$columnKeys[$item['column']]],
-                            'label' => [$item['key']]
+                            'label' => $item['key']
                         );
                         $relations[] = json_encode($relation);
                     }
