@@ -11,9 +11,12 @@
         "symfony/translation": "~2.3",
         "league/csv": "~6.3",
         "symfony/security-csrf": "~2.6",
-        "guzzlehttp/guzzle": "~5.1"
+        "guzzlehttp/guzzle": "~5.1",
+        "dflydev/stack-authentication": "1.0.*@dev",
+        "dflydev/stack-firewall": "1.0.*@dev",
+        "dflydev/stack-basic-authentication": "1.0.*@dev",
+        "stack/builder": "^1.0"
     },
-
     "scripts": {
         "post-install-cmd": "Pipo\\Silex\\Composer::install",
         "post-update-cmd": "Pipo\\Silex\\Composer::update"

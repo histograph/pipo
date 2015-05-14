@@ -7,6 +7,10 @@ $app['export_dir'] = __DIR__ . '/../storage/exports';
 $app['api_user'] = 'geo-user';
 $app['api_pass'] = 'xxxxxxyyz';
 
+// BASIC USERS with PASSWORD
+$app['users'] = array(
+    'username' => 'password',
+);
 
 // FOR DEVELOPMENT
 $app['debug'] = true;
