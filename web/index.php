@@ -44,7 +44,7 @@ $app->terminate($request, $response);
 
 
 // DEV
-$app->run();
+//$app->run();
 
 // PROD
 //$app['http_cache']->run();
