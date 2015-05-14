@@ -568,20 +568,20 @@ class DataSetControllerProvider implements ControllerProviderInterface
     public function postSource(Application $app, $id)
     {
         if (!file_exists($app['export_dir'] . '/' . $id . '/source.json')) {
-            $app['session']->getFlashBag()->set('alert', 'Het source.json bestand bestaat nog niet.');
+            $app['session']->getFlashBag()->set('alert', 'The source.json file does not exist yet. You have to create it before we can send it to the API.');
             return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
         }
 
-        // todo, check whether we have an existing or a new resource, PATH or post
-        if ($id = 'carnaval') {
-            $json = file_get_contents($app['export_dir'] . '/' . $id . '/source.json');
-            $response = $app['histograph_service']->updateHistographSource($id, $json);
+        $json = file_get_contents($app['export_dir'] . '/' . $id . '/source.json');
+        $response = $app['histograph_service']->saveHistographSource($id, $json);
 
+        if (true === $response) {
+            $app['session']->getFlashBag()->set('alert', 'The source.json file has been sent to the API. It should show up any minute now.');
         } else {
-            $json = file_get_contents($app['export_dir'] . '/' . $id . '/source.json');
-            $response = $app['histograph_service']->createNewHistographSource($json);
+            $app['session']->getFlashBag()->set('error', 'Oops, something went wrong. The API returned the following error: ' . $response);
         }
-        // todo add a flash message and send the user somewhere
+
+        return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
     }
 
     /**
@@ -594,12 +594,19 @@ class DataSetControllerProvider implements ControllerProviderInterface
     public function postPits(Application $app, $id)
     {
         if (!file_exists($app['export_dir'] . '/' . $id . '/pits.ndjson')) {
-            $app['session']->getFlashBag()->set('alert', 'Het pits.ndjson bestand bestaat nog niet.');
+            $app['session']->getFlashBag()->set('alert', 'The pits.ndjson file does not exist yet. You have to create it before we can send it to the API.');
             return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
         }
         $json = file_get_contents($app['export_dir'] . '/' . $id . '/pits.ndjson');
         $response = $app['histograph_service']->addPitsToHistographSource($id, $json);
-        // todo add a flash message and send the user somewhere
+
+        if (true === $response) {
+            $app['session']->getFlashBag()->set('alert', 'The PiTs have been added to the API. It might take a while to process them all (depending on the size of your set). Please check the API or viewer later.');
+        } else {
+            $app['session']->getFlashBag()->set('error', 'Oops, something went wrong. The API returned the following error: ' . $response);
+        }
+
+        return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
     }
 
     /**

@@ -2,6 +2,7 @@
 
 namespace Pipo\Mapper\Service;
 
+use GuzzleHttp\Exception\ClientException;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\PropertyAccess\Exception\RuntimeException;
 
@@ -35,27 +36,33 @@ class HistographService {
      *
      * @param string $sourceId
      * @param string $json
+     * @return bool
      */
     public function addPitsToHistographSource($sourceId, $json)
     {
-        $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '/pits';
-
-        // todo ndjson not as json body, but www-form encoded
+        $uri = $this->baseUri . self::SOURCES_ENTRY_POINT . '/' . $sourceId . '/pits';
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
-        $response = $this->client->post(
-            $uri,
-            array(
-                'headers' => array(
-                    'Authorization' => 'Basic ' . $auth,
-                    'Accept' => 'application/json',
-                ),
-                'body' => json_encode($json)
-            ));
 
-        //var_dump($response);
-        var_dump($response->json());
+        try {
+            $response = $this->client->post(
+                $uri,
+                array(
+                    'headers' => array(
+                        'Content-type' => 'application/x-ndjson',
+                        'Authorization' => 'Basic ' . $auth,
+                        'Accept' => 'application/json',
+                    ),
+                    'body' => $json
+                ));
 
-        die;
+            if ($response->getStatusCode() === 201) {
+                return true;
+            }
+        } catch (ClientException $e) { // 400 errors
+            if ($e->hasResponse()) {
+                return $e->getResponse()->json()['message'];
+            }
+        };
     }
 
     /**
@@ -66,7 +73,7 @@ class HistographService {
      */
     public function addRelationsToHistographSource($sourceId, $json)
     {
-        $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '/relations';
+        $uri = $this->baseUri . self::SOURCES_ENTRY_POINT . '/' . $sourceId . '/relations';
 
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
         $response = $this->client->post(
@@ -86,83 +93,106 @@ class HistographService {
     }
 
     /**
-     * Creates a new or updates an existing source
+     * Creates a new or updates an existing source, depending on the situation
      *
      * @param $sourceId
      * @param $json
+     * @return bool|mixed|void
      */
     public function saveHistographSource($sourceId, $json)
     {
         $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
-        $response = $this->client->get(
-            $uri,
-            array(
-                'headers' => array(
-                    'Content-type' => 'application/json',
-                    'Accept' => 'application/json',
-                ),
-            ));
+        try {
+            $response = $this->client->get(
+                $uri,
+                array(
+                    'headers'       => array(
+                        'Content-type' => 'application/json',
+                        'Accept' =>'application/json',
+                    ),
+                ));
+
+            if ($response->getStatusCode() === 200) { // source already exists, call update
+                return $this->updateHistographSource($sourceId, $json);
+            }
+        } catch (ClientException $e) { // 400 errors
+            if ($e->hasResponse()) {
+                if ($e->getResponse()->getStatusCode() === 404) { // source does not exist, go create
+                    return $this->createNewHistographSource($json);
+                } else {
+                    return $e->getResponse()->json()['message'];
+                }
+            }
+            return 'An unknown error occurred';
+        };
     }
 
+    /**
+     * Updates the description etc of an existing source
+     *
+     * @param $sourceId
+     * @param $json
+     * @return bool
+     */
     public function updateHistographSource($sourceId, $json)
     {
         $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
-        $response = $this->client->patch(
-            $uri,
-            array(
-                'headers' => array(
-                    'Content-type' => 'application/json',
-                    'Authorization' => 'Basic ' . $auth,
-                    'Accept' => 'application/json',
-                ),
-                'body' => $json
-            ));
 
-        var_dump($response->json());
+        try {
+            $response = $this->client->patch(
+                $uri,
+                array(
+                    'headers'       => array(
+                        'Content-type' => 'application/json',
+                        'Authorization' => 'Basic ' . $auth,
+                        'Accept' =>'application/json',
+                    ),
+                    'body' => $json
+                ));
 
-        if ($response->getStatusCode() === 200) {
-
-        } else {
-
-        }
-        die;
+            if ($response->getStatusCode() === 200) {
+                return true;
+            }
+        } catch (ClientException $e) { // 400 errors
+            if ($e->hasResponse()) {
+                return $e->getResponse()->json()['message'];
+            }
+        };
     }
 
-        /**
+    /**
      * POST sources file to the API
      *
      * @param $json
+     * @return bool|mixed
      */
     public function createNewHistographSource($json)
     {
-        $uri = $this->baseUri . SELF::SOURCES_ENTRY_POINT;
+        $uri = $this->baseUri . self::SOURCES_ENTRY_POINT;
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
-        $response = $this->client->post(
-            $uri,
-            array(
-                'headers' => array(
-                    'Content-type' => 'application/json',
-                    'Authorization' => 'Basic ' . $auth,
-                    'Accept' =>'application/json',
-                ),
-                'body' => $json
-                //'body' => json_encode('{"id":"poorterding","title":"Carnaval onzin","description":"Bla die bla bla","license":"GPL","author":"@meme","website":"www.ergensheen.nl","edits":"ik heb er iets mee gedaan","editor":"Petra","sourceCreationDate":null}')
-            ));
-        // https://github.com/histograph/api
-        var_dump($this->client);
-        die;
 
-        var_dump($response->json());
+        try {
+            $response = $this->client->post(
+                $uri,
+                array(
+                    'headers'       => array(
+                        'Content-type' => 'application/json',
+                        'Authorization' => 'Basic ' . $auth,
+                        'Accept' =>'application/json',
+                    ),
+                    'body' => $json
+                ));
 
-        die;
-        if ($response->getStatusCode() === 200) {
-            if (!property_exists($response, 'features')) {
-
-            } else {
-
+            if ($response->getStatusCode() === 201) {
+                return true;
             }
-        }
+        } catch (ClientException $e) { // 400 errors
+            if ($e->hasResponse()) {
+                return $e->getResponse()->json()['message'];
+            }
+        };
+
     }
 
     /**
