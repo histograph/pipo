@@ -668,13 +668,13 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         $files = array();
         if(file_exists($app['export_dir'] . '/' . $id . '/source.json')){
-            $files['source'] = '/files/' . $id . '/source.json';
+            $files['source'] = '/sets/files/' . $id . '/source.json';
         }
         if(file_exists($app['export_dir'] . '/' . $id . '/pits.ndjson')){
-            $files['pits'] = '/files/' . $id . '/pits.ndjson';
+            $files['pits'] = '/sets/files/' . $id . '/pits.ndjson';
         }
         if(file_exists($app['export_dir'] . '/' . $id . '/relations.ndjson')){
-            $files['relations'] = '/files/' . $id . '/relations.ndjson';
+            $files['relations'] = '/sets/files/' . $id . '/relations.ndjson';
         }
 
 
