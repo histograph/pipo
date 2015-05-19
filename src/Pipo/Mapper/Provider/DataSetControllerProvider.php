@@ -338,6 +338,18 @@ class DataSetControllerProvider implements ControllerProviderInterface
             "hg:Monument",
             "hg:Neighbourhood");
 
+        if($json = file_get_contents("https://raw.githubusercontent.com/histograph/schemas/master/json/pits.schema.json")){
+            $pitschema = json_decode($json,true);
+            $pitTypes = $pitschema['properties']['type']['enum'];
+        }
+
+        if($json = file_get_contents("https://raw.githubusercontent.com/histograph/schemas/master/json/relations.schema.json")){
+            $relationschema = json_decode($json,true);
+            $relationTypes = $relationschema['properties']['label']['enum'];
+        }
+
+        //print_r($pitTypes);
+
 
         return $app['twig']->render('datasets/map.html.twig', array(
             'set' => $dataset,
