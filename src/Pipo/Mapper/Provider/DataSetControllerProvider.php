@@ -858,10 +858,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     $app['session']->getFlashBag()->set('error', 'No pit id has been defined');
                     return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
                 }
-                if(!preg_match("/^" . $id . "\//", $pitid)){ // format id as sourceid/itemid if not already
-                    $pitid = $id . "/" . $pitid;
-                }
-
+                
                 foreach ($maptypes['relation'] as $item) {
                     if($rec[$columnKeys[$item['column']]] != ""){
                         $relation = 	array(	'from' => $pitid,
