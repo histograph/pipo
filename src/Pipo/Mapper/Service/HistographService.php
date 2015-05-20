@@ -3,6 +3,7 @@
 namespace Pipo\Mapper\Service;
 
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Exception\ParseException;
 use GuzzleHttp\Post\PostFile;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\PropertyAccess\Exception\RuntimeException;
@@ -56,19 +57,36 @@ class HistographService {
                         'file' => new PostFile('file', $json),
                     ]
                 ));
+
             if ($response->getStatusCode() === 200) {
                 return true;
             } else {
                 return $response->json()['message'];
             }
         } catch (ClientException $e) { // 400 errors
-            if ($e->hasResponse()) {
-                print $e->getRequest();
-                print $e->getResponse();
-                die;
-                return $e->getResponse()->json()['message'];
+            return $this->handleException($e);
+        }
+    }
+
+    /**
+     *
+     * @param ClientException $e
+     * @return mixed|string
+     */
+    private function handleException(ClientException $e)
+    {
+        if ($e->hasResponse()) {
+            try {
+                $json = $e->getResponse()->json();
+                if (isset($json['details'])) {
+                    return $json['message'] . ' Details: ' . $json['details'];
+                }
+                return $json['message'];
+            } catch (ParseException $e) {
+                return print_r($e->getResponse(), 1);
             }
-        };
+        }
+        return 'The Histograph API returned an unknown error';
     }
 
     /**
@@ -94,7 +112,6 @@ class HistographService {
                         'Accept' => 'application/json',
                     ),
                     'body' => [
-                        //'file_filed' => fopen('/path/to/file', 'r'),
                         'file' => new PostFile('file', $json),
                     ]
                 ));
@@ -103,16 +120,7 @@ class HistographService {
                 return true;
             }
         } catch (ClientException $e) { // 400 errors
-            if ($e->hasResponse()) {
-                print $e->getRequest();
-                print $e->getResponse();
-                die;
-                $details = '';
-                if (null !== ($e->getResponse()->json()['details'])) {
-                    $details = $e->getResponse()->json()['details'];
-                }
-                return $e->getResponse()->json()['message'] . $details;
-            }
+            return $this->handleException($e);
         };
     }
 
@@ -146,11 +154,7 @@ class HistographService {
                 if ($e->getResponse()->getStatusCode() === 404) { // source does not exist, go create
                     return $this->createNewHistographSource($json);
                 } else {
-                    $details = '';
-                    if (null !== func($e->getResponse()->json()['details'])) {
-                        $details = $e->getResponse()->json()['details'];
-                    }
-                    return $e->getResponse()->json()['message'] . $details;
+                    return $this->handleException($e);
                 }
             }
             return 'An unknown error occurred';
@@ -185,9 +189,7 @@ class HistographService {
                 return $response->json()['message'];
             }
         } catch (ClientException $e) {
-            if ($e->hasResponse()) {
-                return $e->getResponse()->json()['message'];
-            }
+            return $this->handleException($e);
         }
     }
 
@@ -219,13 +221,7 @@ class HistographService {
                 return true;
             }
         } catch (ClientException $e) { // 400 errors
-            if ($e->hasResponse()) {
-                $details = '';
-                if (null !== func($e->getResponse()->json()['details'])) {
-                    $details = $e->getResponse()->json()['details'];
-                }
-                return $e->getResponse()->json()['message'] . $details;
-            }
+            return $this->handleException($e);
         };
     }
 
@@ -256,13 +252,7 @@ class HistographService {
                 return true;
             }
         } catch (ClientException $e) { // 400 errors
-            if ($e->hasResponse()) {
-                $details = '';
-                if (null !== func($e->getResponse()->json()['details'])) {
-                    $details = $e->getResponse()->json()['details'];
-                }
-                return $e->getResponse()->json()['message'] . $details;
-            }
+            return $this->handleException($e);
         };
 
     }
