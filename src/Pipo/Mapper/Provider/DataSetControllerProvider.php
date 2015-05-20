@@ -788,10 +788,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     }
                 }
 
-                if(!preg_match("/^" . $id . "\//", $pit['id'])){ // format id as sourceid/itemid if not already
-                    $pit['id'] = $id . "/" . $pit['id'];
-                }
-
                 $pits[] = json_encode($pit);
             }
         }
