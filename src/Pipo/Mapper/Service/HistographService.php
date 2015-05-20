@@ -185,7 +185,7 @@ class HistographService {
                     ),
                 ));
 
-            if ($response->getStatusCode() === 20) {
+            if ($response->getStatusCode() === 200) {
                 return true;
             } else {
                 return $response->json()['message'];
