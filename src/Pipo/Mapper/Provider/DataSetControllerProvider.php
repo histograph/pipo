@@ -874,16 +874,17 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
                 }
                 
-                foreach ($maptypes['relation'] as $item) {
-                    if($rec[$columnKeys[$item['column']]] != ""){
-                        $relation = 	array(	'from' => $pitid,
-                            'to' => $rec[$columnKeys[$item['column']]],
-                            'label' => $item['key']
-                        );
-                        $relations[] = json_encode($relation);
+                if(isset($maptypes['relation'])){
+                    foreach ($maptypes['relation'] as $item) {
+                        if($rec[$columnKeys[$item['column']]] != ""){
+                            $relation = 	array(	'from' => $pitid,
+                                'to' => $rec[$columnKeys[$item['column']]],
+                                'label' => $item['key']
+                            );
+                            $relations[] = json_encode($relation);
+                        }
                     }
                 }
-
 
             }
         }
