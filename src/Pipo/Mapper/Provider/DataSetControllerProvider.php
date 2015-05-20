@@ -110,7 +110,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
     {
         $dataset = $app['dataset_service']->getDataset($id);
         if (!$dataset) {
-            die($id);
             return $app->redirect($app['url_generator']->generate('datasets-all'));
         }
 
@@ -656,7 +655,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
      */
     public function postDelete(Application $app, $id)
     {
-        $id = 'carnaval2';
         $response = $app['histograph_service']->deleteHistographSource($id);
 
         if (true === $response) {
