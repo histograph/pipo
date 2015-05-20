@@ -79,7 +79,7 @@ class HistographService {
             try {
                 $json = $e->getResponse()->json();
                 if (isset($json['details'])) {
-                    return $json['message'] . ' Details: ' . $json['details'];
+                    return $json['message'] . ' Details: ' . print_r($json['details'], 1);
                 }
                 return $json['message'];
             } catch (ParseException $e) {
