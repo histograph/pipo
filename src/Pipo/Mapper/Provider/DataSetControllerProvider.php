@@ -854,6 +854,10 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     }
                 }
                 $pit['geometry'] = json_decode(stripslashes($pit['geometry']));
+
+                if($pit['geometry']==null || $pit['geometry']==""){ // some municipalities go without geometry, see Holysloot
+                    unset($pit['geometry']);
+                }
                 //die(print_r($pit));
                 
                 $pits[] = json_encode($pit);
