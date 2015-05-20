@@ -261,9 +261,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 // all done, now delete initial geojson file
                 unlink($app['upload_dir'] . DIRECTORY_SEPARATOR . $geojsonfilename);
             }else{
-            $filename = time(). '.csv';
-            $originalName = $files['csvFile']->getClientOriginalName();
-            $files['csvFile']->move($app['upload_dir'], $filename);
+                $filename = time(). '.csv';
+                $originalName = $files['csvFile']->getClientOriginalName();
+                $files['csvFile']->move($app['upload_dir'], $filename);
             }
 
             $data = $form->getData();
@@ -833,7 +833,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     unset($pit['lat']);
                     unset($pit['long']);
                 }
-                
+
+
                 // valid dates?
                 if(isset($pit['hasBeginning'])){
                     if(preg_match("/^[0-9]{1,4}$/",$pit['hasBeginning'])){ // if year only, create valid date
@@ -852,7 +853,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
                         $pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
                     }
                 }
-
+                $pit['geometry'] = json_decode(stripslashes($pit['geometry']));
+                //die(print_r($pit));
+                
                 $pits[] = json_encode($pit);
             }
         }
