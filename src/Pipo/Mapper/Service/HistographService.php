@@ -75,7 +75,7 @@ class HistographService {
      */
     private function handleException(ClientException $e)
     {
-        print $e->getResponse(); die;
+        return (string) $e->getResponse();
         if ($e->hasResponse()) {
             try {
                 $json = $e->getResponse()->json();

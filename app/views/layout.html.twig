@@ -73,7 +73,7 @@
     {% for flashMessage in app.session.flashbag.get('alert') %}
         <script>
             jQuery(function () {
-                alertMessage("{{ flashMessage }}");
+                alertMessage("{{ flashMessage|escape('js') }}");
             });
         </script>
     {% endfor %}
@@ -83,7 +83,7 @@
     {% for flashMessage in app.session.flashbag.get('error') %}
         <script>
             jQuery(function () {
-                alertMessage("{{ flashMessage }}", 'alert-danger');
+                alertMessage("{{ flashMessage|escape('js') }}", 'alert-danger');
             });
         </script>
     {% endfor %}
