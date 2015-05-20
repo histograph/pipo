@@ -3,6 +3,7 @@
 namespace Pipo\Mapper\Service;
 
 use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Post\PostFile;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\PropertyAccess\Exception\RuntimeException;
 
@@ -65,7 +66,11 @@ class HistographService {
             if ($e->hasResponse()) {
                 //print $e->getRequest();
                 //print ($e->getResponse());
-                return $e->getResponse()->json()['message'];
+                $details = '';
+                    if (null !== func($e->getResponse()->json()['details'])) {
+                    $details = $e->getResponse()->json()['details'];
+                }
+                return $e->getResponse()->json()['message'] . $details;
             }
         };
     }
@@ -82,16 +87,20 @@ class HistographService {
         $uri = $this->baseUri . self::SOURCES_ENTRY_POINT . '/' . $sourceId . '/relations';
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
         try {
+
             $response = $this->client->put(
                 $uri,
                 array(
                     'headers' => array(
-                        'Content-type' => 'application/x-ndjson',
-                        'Mime-type' => 'application/x-ndjson',
+                 //       'Content-type' => 'application/x-ndjson',
+                 //       'Mime-type' => 'application/x-ndjson',
                         'Authorization' => 'Basic ' . $auth,
                         'Accept' => 'application/json',
                     ),
-                    'body' => $json
+                    'body' => [
+                        //'file_filed' => fopen('/path/to/file', 'r'),
+                        'file' => new PostFile('file', $json),
+                    ]
                 ));
 
             if ($response->getStatusCode() === 200) {
@@ -99,9 +108,14 @@ class HistographService {
             }
         } catch (ClientException $e) { // 400 errors
             if ($e->hasResponse()) {
-                //print $e->getRequest();
-                print ($e->getResponse());
-                return $e->getResponse()->json()['error'];
+                print $e->getResponse();
+                print $e->getRequest();
+                die;
+                $details = '';
+                if (null !== func($e->getResponse()->json()['details'])) {
+                    $details = $e->getResponse()->json()['details'];
+                }
+                return $e->getResponse()->json()['message'] . $details;
             }
         };
     }
@@ -136,7 +150,11 @@ class HistographService {
                 if ($e->getResponse()->getStatusCode() === 404) { // source does not exist, go create
                     return $this->createNewHistographSource($json);
                 } else {
-                    return $e->getResponse()->json()['message'];
+                    $details = '';
+                    if (null !== func($e->getResponse()->json()['details'])) {
+                        $details = $e->getResponse()->json()['details'];
+                    }
+                    return $e->getResponse()->json()['message'] . $details;
                 }
             }
             return 'An unknown error occurred';
@@ -206,7 +224,11 @@ class HistographService {
             }
         } catch (ClientException $e) { // 400 errors
             if ($e->hasResponse()) {
-                return $e->getResponse()->json()['message'];
+                $details = '';
+                if (null !== func($e->getResponse()->json()['details'])) {
+                    $details = $e->getResponse()->json()['details'];
+                }
+                return $e->getResponse()->json()['message'] . $details;
             }
         };
     }
@@ -239,7 +261,11 @@ class HistographService {
             }
         } catch (ClientException $e) { // 400 errors
             if ($e->hasResponse()) {
-                return $e->getResponse()->json()['message'];
+                $details = '';
+                if (null !== func($e->getResponse()->json()['details'])) {
+                    $details = $e->getResponse()->json()['details'];
+                }
+                return $e->getResponse()->json()['message'] . $details;
             }
         };
 
