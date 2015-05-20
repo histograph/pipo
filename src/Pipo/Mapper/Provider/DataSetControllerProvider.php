@@ -840,10 +840,16 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     if(preg_match("/^[0-9]{1,4}$/",$pit['hasBeginning'])){ // if year only, create valid date
                         $pit['hasBeginning'] = $pit['hasBeginning'] . "-01-01";
                     }
+                    if(!preg_match("/^[0-9]{1,4}-[0-9]{2}--[0-9]{2}$/",$pit['hasBeginning'])){
+                        unset($pit['hasBeginning']);
+                    }
                 }
                 if(isset($pit['hasEnd'])){
                     if(preg_match("/^[0-9]{1,4}$/",$pit['hasEnd'])){ // if year only, create valid date
                         $pit['hasEnd'] = $pit['hasEnd'] . "-01-01";
+                    }
+                    if(!preg_match("/^[0-9]{1,4}-[0-9]{2}--[0-9]{2}$/",$pit['hasEnd'])){
+                        unset($pit['hasEnd']);
                     }
                 }
                 
