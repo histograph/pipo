@@ -787,12 +787,12 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 // valid dates?
                 if(isset($pit['hasBeginning'])){
                     if(preg_match("/^[0-9]{1,4}$/",$pit['hasBeginning'])){ // if year only, create valid date
-                        $pit['hasBeginning'] = $pit['hasBeginning'] . "-00-00";
+                        $pit['hasBeginning'] = $pit['hasBeginning'] . "-01-01";
                     }
                 }
                 if(isset($pit['hasEnd'])){
                     if(preg_match("/^[0-9]{1,4}$/",$pit['hasEnd'])){ // if year only, create valid date
-                        $pit['hasEnd'] = $pit['hasEnd'] . "-00-00";
+                        $pit['hasEnd'] = $pit['hasEnd'] . "-01-01";
                     }
                 }
                 
