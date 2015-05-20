@@ -49,14 +49,13 @@ class HistographService {
                 $uri,
                 array(
                     'headers' => array(
-                        'Content-type' => 'application/x-ndjson',
-                        'Mime-type' => 'application/x-ndjson',
                         'Authorization' => 'Basic ' . $auth,
                         'Accept' => 'application/json',
                     ),
-                    'body' => $json
+                    'body' => [
+                        'file' => new PostFile('file', $json),
+                    ]
                 ));
-
             if ($response->getStatusCode() === 200) {
                 return true;
             } else {
