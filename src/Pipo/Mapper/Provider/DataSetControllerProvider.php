@@ -779,6 +779,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 // if lat & long and no geometry, make geojson from lat & long values
                 if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
                     $pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
+                    unset($pit['lat']);
+                    unset($pit['long']);
                 }
                 if (isset($maptypes['data'])) {
                     foreach ($maptypes['data'] as $item) {
@@ -789,6 +791,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 if(!preg_match("/^" . $id . "\//", $pit['id'])){ // format id as sourceid/itemid if not already
                     $pit['id'] = $id . "/" . $pit['id'];
                 }
+
                 $pits[] = json_encode($pit);
             }
         }
