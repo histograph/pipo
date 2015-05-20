@@ -63,13 +63,10 @@ class HistographService {
             }
         } catch (ClientException $e) { // 400 errors
             if ($e->hasResponse()) {
-                //print $e->getRequest();
-                //print ($e->getResponse());
-                $details = '';
-                    if (null !== func($e->getResponse()->json()['details'])) {
-                    $details = $e->getResponse()->json()['details'];
-                }
-                return $e->getResponse()->json()['message'] . $details;
+                print $e->getRequest();
+                print $e->getResponse();
+                die;
+                return $e->getResponse()->json()['message'];
             }
         };
     }
@@ -107,11 +104,11 @@ class HistographService {
             }
         } catch (ClientException $e) { // 400 errors
             if ($e->hasResponse()) {
-                print $e->getResponse();
                 print $e->getRequest();
+                print $e->getResponse();
                 die;
                 $details = '';
-                if (null !== func($e->getResponse()->json()['details'])) {
+                if (null !== ($e->getResponse()->json()['details'])) {
                     $details = $e->getResponse()->json()['details'];
                 }
                 return $e->getResponse()->json()['message'] . $details;
