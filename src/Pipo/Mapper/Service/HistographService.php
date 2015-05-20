@@ -75,9 +75,11 @@ class HistographService {
      */
     private function handleException(ClientException $e)
     {
+        print $e->getResponse(); die;
         if ($e->hasResponse()) {
             try {
                 $json = $e->getResponse()->json();
+                // todo fix this when Bert has updated the API
                 if (isset($json['details'])) {
                     return $json['message'] . ' Details: ' . print_r($json['details'], 1);
                 }
