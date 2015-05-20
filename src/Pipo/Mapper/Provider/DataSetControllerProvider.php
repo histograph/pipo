@@ -776,12 +776,27 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
 
                 }
+                
                 // if lat & long and no geometry, make geojson from lat & long values
                 if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
                     $pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
                     unset($pit['lat']);
                     unset($pit['long']);
                 }
+                
+                // valid dates?
+                if(isset($pit['hasBeginning'])){
+                    if(preg_match("/^[0-9]{1,4}$/",$pit['hasBeginning'])){ // if year only, create valid date
+                        $pit['hasBeginning'] = $pit['hasBeginning'] . "-00-00";
+                    }
+                }
+                if(isset($pit['hasEnd'])){
+                    if(preg_match("/^[0-9]{1,4}$/",$pit['hasEnd'])){ // if year only, create valid date
+                        $pit['hasEnd'] = $pit['hasEnd'] . "-00-00";
+                    }
+                }
+                
+
                 if (isset($maptypes['data'])) {
                     foreach ($maptypes['data'] as $item) {
                         $pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
