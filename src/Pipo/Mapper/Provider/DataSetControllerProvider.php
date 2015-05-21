@@ -760,7 +760,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $dataset = $app['dataset_service']->getDataset($id);
         unset($dataset['use_csv_id']);
 
-        $sourcejson = json_encode($dataset);
+        $sourcejson = json_encode($dataset,JSON_UNESCAPED_SLASHES);
 
         $dir = $app['export_dir'] . '/' . $id;
         if (!file_exists($dir)) {
@@ -795,6 +795,12 @@ class DataSetControllerProvider implements ControllerProviderInterface
         }
 
         $csv = \League\Csv\Reader::createFromPath($file);
+
+        $delimiters_list = $csv->detectDelimiterList(1); // checks for ",", ";", "\t"
+        if(isset($delimiters_list[0])){
+            $csv->setDelimiter($delimiters_list[0]);
+        }
+        
         $recs = $csv->fetchAll();
         $columnNames = array_shift($recs); // first row holds column names, right?
         $columnKeys = array_flip($columnNames);
@@ -818,61 +824,62 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
             $pit = array();
 
-            if(isset($rec[$lastkey])){ // first csv i tried ended with an empty line, make sure rec has all expected columns
-                foreach ($maptypes['property'] as $prop) {
+            foreach ($maptypes['property'] as $prop) {
 
-                    if($prop['text']!=""){
-                        $pit[$prop['key']] = $prop['text'];
-                    }
-                    if($prop['column']!=""){
-                        $pit[$prop['key']] = $rec[$columnKeys[$prop['column']]];
-                    }
-
-
+                if($prop['text']!=""){
+                    $pit[$prop['key']] = $prop['text'];
                 }
-                
-                // if lat & long and no geometry, make geojson from lat & long values
-                if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
-                    $pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
-                    unset($pit['lat']);
-                    unset($pit['long']);
+                if($prop['column']!=""){
+                    $pit[$prop['key']] = $rec[$columnKeys[$prop['column']]];
                 }
 
 
-                // valid dates?
-                if(isset($pit['hasBeginning'])){
-                    if(preg_match("/^[0-9]{1,4}$/",$pit['hasBeginning'])){ // if year only, create valid date
-                        $pit['hasBeginning'] = $pit['hasBeginning'] . "-01-01";
-                    }
-                    if(!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['hasBeginning'])){
-                        unset($pit['hasBeginning']);
-                    }
-                }
-                if(isset($pit['hasEnd'])){
-                    if(preg_match("/^[0-9]{1,4}$/",$pit['hasEnd'])){ // if year only, create valid date
-                        $pit['hasEnd'] = $pit['hasEnd'] . "-01-01";
-                    }
-                    if(!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['hasEnd'])){
-                        unset($pit['hasEnd']);
-                    }
-                }
-                
-
-                if (isset($maptypes['data'])) {
-                    foreach ($maptypes['data'] as $item) {
-                        $pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
-                    }
-                }
-                $pit['geometry'] = json_decode(stripslashes($pit['geometry']));
-
-                if($pit['geometry']==null || $pit['geometry']==""){ // some municipalities go without geometry, see Holysloot
-                    unset($pit['geometry']);
-                }
-                //die(print_r($pit));
-                
-                $pits[] = json_encode($pit);
             }
+            
+            // if lat & long and no geometry, make geojson from lat & long values
+            if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
+                $pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['lat'] . ', ' .  $pit['long']. '] }';
+                unset($pit['lat']);
+                unset($pit['long']);
+            }
+
+
+            // valid dates?
+            if(isset($pit['hasBeginning'])){
+                if(preg_match("/^[0-9]{1,4}$/",$pit['hasBeginning'])){ // if year only, create valid date
+                    $pit['hasBeginning'] = $pit['hasBeginning'] . "-01-01";
+                }
+                if(!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['hasBeginning'])){
+                    unset($pit['hasBeginning']);
+                }
+            }
+            if(isset($pit['hasEnd'])){
+                if(preg_match("/^[0-9]{1,4}$/",$pit['hasEnd'])){ // if year only, create valid date
+                    $pit['hasEnd'] = $pit['hasEnd'] . "-01-01";
+                }
+                if(!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['hasEnd'])){
+                    unset($pit['hasEnd']);
+                }
+            }
+            
+
+            if (isset($maptypes['data'])) {
+                foreach ($maptypes['data'] as $item) {
+                    $pit['data'][$item['key']] = $rec[$columnKeys[$item['column']]];
+                }
+            }
+            $pit['geometry'] = json_decode(stripslashes($pit['geometry']));
+
+            if($pit['geometry']==null || $pit['geometry']==""){ // some municipalities go without geometry, see Holysloot
+                unset($pit['geometry']);
+            }
+            
+            if($pit['id']!=""){
+                $pits[] = json_encode($pit,JSON_UNESCAPED_SLASHES);
+            }
+            
         }
+        
         $ndjson = implode("\n",$pits);
 
         $dir = $app['export_dir'] . '/' . $id;
@@ -888,7 +895,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
     }
 
     /**
-     * Export pits to ndjson file
+     * Export relations to ndjson file
      *
      * @param Application $app
      * @param $id
@@ -908,6 +915,12 @@ class DataSetControllerProvider implements ControllerProviderInterface
         }
 
         $csv = \League\Csv\Reader::createFromPath($file);
+
+        $delimiters_list = $csv->detectDelimiterList(1); // checks for ",", ";", "\t"
+        if(isset($delimiters_list[0])){
+            $csv->setDelimiter($delimiters_list[0]);
+        }
+        
         $recs = $csv->fetchAll();
         $columnNames = array_shift($recs); // first row holds column names, right?
         $columnKeys = array_flip($columnNames);
@@ -924,37 +937,35 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         // attach the right values to the keys expected by Histograph and create ndjson
         $relations = array();
-        $lastkey = count($columnNames)-1;
+        
         foreach ($recs as $recKey => $rec) {
             $pitid = false;
-            if(isset($rec[$lastkey])){ // first csv i tried ended with an empty line, make sure rec has all expected columns
+            
+            foreach ($maptypes['property'] as $prop) {
 
-                foreach ($maptypes['property'] as $prop) {
-
-                    if($prop['key']=="id"){
-                        $pitid = $rec[$columnKeys[$prop['column']]];
-                    }
-
-                }
-                if(!$pitid){
-                    $app['session']->getFlashBag()->set('error', 'No pit id has been defined');
-                    return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
-                }
-                
-                if(isset($maptypes['relation'])){
-                    foreach ($maptypes['relation'] as $item) {
-                        if($rec[$columnKeys[$item['column']]] != ""){
-                            $relation = 	array(	'from' => $pitid,
-                                'to' => $rec[$columnKeys[$item['column']]],
-                                'label' => $item['key']
-                            );
-                            $relations[] = json_encode($relation);
-                        }
-                    }
+                if($prop['key']=="id"){
+                    $pitid = $rec[$columnKeys[$prop['column']]];
                 }
 
             }
+            
+            if($pitid && $pitid != ""){                                         // no empty lines or pits without id's
+                if(isset($maptypes['relation'])){                               // only if relation exists
+                    foreach ($maptypes['relation'] as $item) {
+                        if($rec[$columnKeys[$item['column']]] != ""){           // only if related object has a value
+                            $relation = 	array(	'from' => $pitid,
+                                                    'to' => $rec[$columnKeys[$item['column']]],
+                                                    'label' => $item['key']
+                            );
+                            $relations[] = json_encode($relation,JSON_UNESCAPED_SLASHES);
+                        }
+                    }
+                }
+            }
+
         }
+
+
         $ndjson = implode("\n",$relations);
 
         $dir = $app['export_dir'] . '/' . $id;
