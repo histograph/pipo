@@ -341,8 +341,12 @@ class DataSetControllerProvider implements ControllerProviderInterface
         }
 
         $csv = \League\Csv\Reader::createFromPath($file);
-        $columnNames = $csv->fetchOne();
 
+        $delimiters_list = $csv->detectDelimiterList(1); // checks for ",", ";", "\t"
+        if(isset($delimiters_list[0])){
+            $csv->setDelimiter($delimiters_list[0]);
+        }
+        $columnNames = $csv->fetchOne();
 
         // get current mapping if any
         $mappings = $app['dataset_service']->getMappings($id);
