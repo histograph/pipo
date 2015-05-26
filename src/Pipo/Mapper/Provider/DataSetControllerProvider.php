@@ -994,9 +994,16 @@ class DataSetControllerProvider implements ControllerProviderInterface
      */
     public function serveFile(Application $app, $id, $name)
     {
-        if(file_exists($app['export_dir'] . '/' . $id . '/' . $name)){
-            header('Content-type:application/json');
-            return file_get_contents($app['export_dir'] . '/' . $id . '/' . $name);
+        if (file_exists($app['export_dir'] . '/' . $id . '/' . $name)){
+
+            $response = new Response();
+            $response->setContent(
+                file_get_contents($app['export_dir'] . '/' . $id . '/' . $name)
+            );
+
+            $response->headers->set('Content-Type', 'application/json');
+            $response->headers->set('Mime-Type', 'application-x/ndjson');
+            return $response;
         }
 
     }
