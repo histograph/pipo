@@ -869,9 +869,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 }
             }
 
-            print_r($pit);
             if(isset($pit['geometry'])){
-                if(json_decode($pit['geometry']) != null){
+                if(json_decode($pit['geometry']) != null){ // soms 
                     $pit['geometry'] = json_decode(stripslashes($pit['geometry']));
                 }
 
@@ -879,7 +878,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     unset($pit['geometry']);
                 }
             }
-            print_r($pit);
             
             if($pit['id']!=""){
                 $pits[] = json_encode($pit,JSON_UNESCAPED_SLASHES);
