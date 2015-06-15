@@ -21,7 +21,7 @@ class HistographService {
     /**
      * @var string $baseUri Uri of the service to call
      */
-    private $baseUri = 'http://api.erfgeo.nl'; // https://api.histograph.io';
+    private $baseUri = 'https://api.erfgeo.nl'; // https://api.histograph.io';
 
     protected $app;
 
@@ -136,6 +136,7 @@ class HistographService {
     public function saveHistographSource($sourceId, $json)
     {
         $uri = $this->baseUri . self::SOURCES_ENTRY_POINT . '/' . $sourceId . '';
+
         try {
             $response = $this->client->get(
                 $uri,
