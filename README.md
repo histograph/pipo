@@ -15,7 +15,7 @@ The tool to create valid ndjson files to upload to the Histograph Core
 3. And run `php composer.phar install`
 4. Create a database based on the file: `sql/pipo.sql`
 5. Rename the `./app/config/parameters.php.dist` to parameters.php and change the configuration settings for db, email etc. according to your setup
-6. Create a virtual host or point your browser to the location you set up for this site
+6. Create a virtual host or point your browser to the location you set up for this site. You'll need a rewrite rule for the app to work, as described here: http://silex.sensiolabs.org/doc/web_servers.html
 7. Composers post install script should have created the following dirs and made them writeable for the web server:
     app/storage/cache, app/storage/log, app/storage/uploads
 If the last step failed do this manually:
