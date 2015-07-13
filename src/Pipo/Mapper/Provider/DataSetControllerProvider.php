@@ -398,7 +398,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             $pitTypes = $pitschema['properties']['type']['enum'];
         }
 
-        if($json = file_get_contents("https://raw.githubusercontent.com/histograph/schemas/master/json/relations.schema.json")){
+        if($json = file_get_contents("https://raw.githubusercontent.com/histograph/schemas/8d2f01300f788dab2d961c7f21817ad434ccbf75/json/relations.schema.json")){
             $relationschema = json_decode($json,true);
             $relationTypes = $relationschema['properties']['label']['enum'];
         }
