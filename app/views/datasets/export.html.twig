@@ -10,18 +10,18 @@
     <div class="row">
         <div class="col-md-8">
 
-            {% if files.source is defined %}
-            	<h3><a href="{{ files.source }}">source.json</a></h3>
+            {% if files.dataset is defined %}
+            	<h3><a href="{{ files.dataset }}">dataset.json</a></h3>
             	
-            	<a href="{{ path('dataset-export-source', { 'id': set.id }) }}" class="btn btn-primary">renew source.json</a>
+            	<a href="{{ path('dataset-export-source', { 'id': set.id }) }}" class="btn btn-primary">renew dataset.json</a>
 
-                <a href="{{ path('dataset-post-source', { 'id': set.id }) }}" class="btn btn-primary">export source.json to Histograph</a>
+                <a href="{{ path('dataset-post-source', { 'id': set.id }) }}" class="btn btn-primary">export dataset.json to Histograph</a>
            
         	{% else %}
 
-        		<h3>No source.json yet</h3>
+        		<h3>No dataset.json yet</h3>
 
-        		<a href="{{ path('dataset-export-source', { 'id': set.id }) }}" class="btn btn-primary">create source.json</a>
+        		<a href="{{ path('dataset-export-source', { 'id': set.id }) }}" class="btn btn-primary">create dataset.json</a>
             {% endif %} 
 
 
@@ -61,8 +61,8 @@
             <h1>Export dataset '{{ set.title }}'</h1>
 
             <p>Or... the danger button</p>
-            <a href="{{ path('dataset-post-delete', { 'id': set.id }) }}" class="btn btn-danger">Delete the entire source from Histograph</a>
-            <p>This will remove everything: pits, relations and the source file! <strong>Use with caution.</strong></p>
+            <a href="{{ path('dataset-post-delete', { 'id': set.id }) }}" class="btn btn-danger">Delete the entire dataset from Histograph</a>
+            <p>This will remove everything: pits, relations and the dataset file! <strong>Use with caution.</strong></p>
         </div>
     </div>
 

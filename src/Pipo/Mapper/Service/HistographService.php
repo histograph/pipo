@@ -13,7 +13,7 @@ class HistographService {
     const API_TIMEOUT           = 50;
     const API_CONNECT_TIMEOUT   = 50;
 
-    const SOURCES_ENTRY_POINT   = '/sources';
+    const SOURCES_ENTRY_POINT   = '/datasets'; //'/sources';
 
     private $apiUser = null;
     private $apiPass = null;
@@ -21,7 +21,7 @@ class HistographService {
     /**
      * @var string $baseUri Uri of the service to call
      */
-    private $baseUri = 'https://api.erfgeo.nl'; // https://api.histograph.io';
+    private $baseUri = 'https://api.histograph.io'; // https://api.erfgeo.nl';
 
     protected $app;
 

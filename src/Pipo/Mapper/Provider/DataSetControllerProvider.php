@@ -393,14 +393,14 @@ class DataSetControllerProvider implements ControllerProviderInterface
             "hg:Monument",
             "hg:Neighbourhood");
 
-        if($json = file_get_contents("https://raw.githubusercontent.com/histograph/schemas/master/json/pits.schema.json")){
+        if($json = file_get_contents("https://api.histograph.io/schemas/pits")){
             $pitschema = json_decode($json,true);
             $pitTypes = $pitschema['properties']['type']['enum'];
         }
 
-        if($json = file_get_contents("https://raw.githubusercontent.com/histograph/schemas/8d2f01300f788dab2d961c7f21817ad434ccbf75/json/relations.schema.json")){
+        if($json = file_get_contents("https://api.histograph.io/schemas/relations")){
             $relationschema = json_decode($json,true);
-            $relationTypes = $relationschema['properties']['label']['enum'];
+            $relationTypes = $relationschema['properties']['type']['enum'];
         }
 
         //print_r($pitTypes);
@@ -635,8 +635,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
      */
     public function postSource(Application $app, $id)
     {
-        if (!file_exists($app['export_dir'] . '/' . $id . '/source.json')) {
-            $app['session']->getFlashBag()->set('alert', 'The source.json file does not exist yet. You have to create it before we can send it to the API.');
+        if (!file_exists($app['export_dir'] . '/' . $id . '/dataset.json')) {
+            $app['session']->getFlashBag()->set('alert', 'The dataset.json file does not exist yet. You have to create it before we can send it to the API.');
             return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
         }
 
@@ -733,8 +733,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $dataset = $app['dataset_service']->getDataset($id);
 
         $files = array();
-        if(file_exists($app['export_dir'] . '/' . $id . '/source.json')){
-            $files['source'] = '/sets/files/' . $id . '/source.json';
+        if(file_exists($app['export_dir'] . '/' . $id . '/dataset.json')){
+            $files['dataset'] = '/sets/files/' . $id . '/dataset.json';
         }
         if(file_exists($app['export_dir'] . '/' . $id . '/pits.ndjson')){
             $files['pits'] = '/sets/files/' . $id . '/pits.ndjson';
@@ -760,6 +760,10 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $dataset = $app['dataset_service']->getDataset($id);
         unset($dataset['use_csv_id']);
 
+        //hell, api team changed names!
+        $dataset['creationDate'] = $dataset['sourceCreationDate'];
+        unset($dataset['sourceCreationDate']);
+
         $sourcejson = json_encode($dataset,JSON_UNESCAPED_SLASHES);
 
         $dir = $app['export_dir'] . '/' . $id;
@@ -767,9 +771,9 @@ class DataSetControllerProvider implements ControllerProviderInterface
             mkdir($dir, 0777);
         }
 
-        file_put_contents( $dir . '/source.json', $sourcejson);
+        file_put_contents( $dir . '/dataset.json', $sourcejson);
 
-        $app['session']->getFlashBag()->set('alert', 'Er is een source.json aangemaakt of overschreven.');
+        $app['session']->getFlashBag()->set('alert', 'Er is een dataset.json aangemaakt of overschreven.');
 
         return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
     }
@@ -839,6 +843,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
                 }
 
+                // if there's a URI, we don't want an id
+                if(isset($pit['uri']) && strlen($pit['uri'])){
+                    $pit['id'] = "";
+                }
+
                 
                 // if lat & long and no geometry, make geojson from lat & long values
                 if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
@@ -848,22 +857,55 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 }
 
 
-                // valid dates?
-                if(isset($pit['hasBeginning'])){
-                    if(preg_match("/^[0-9]{1,4}$/",$pit['hasBeginning'])){ // if year only, create valid date
-                        $pit['hasBeginning'] = $pit['hasBeginning'] . "-01-01";
+                // DATES
+                if(isset($pit['validSinceMin'])){
+                    if(preg_match("/^[0-9]{1,4}$/",$pit['validSinceMin']) || 
+                        preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['validSinceMin'])){ // valid year or date?
+                        $pit['validSince'] = $pit['validSinceMin'];
                     }
-                    if(!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['hasBeginning'])){
-                        unset($pit['hasBeginning']);
-                    }
+
+                    unset($pit['validSinceMin']);
                 }
-                if(isset($pit['hasEnd'])){
-                    if(preg_match("/^[0-9]{1,4}$/",$pit['hasEnd'])){ // if year only, create valid date
-                        $pit['hasEnd'] = $pit['hasEnd'] . "-01-01";
+
+                if(isset($pit['validSinceMax'])){
+                    if(preg_match("/^[0-9]{1,4}$/",$pit['validSinceMax']) || 
+                        preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['validSinceMax'])){ // valid year or date?
+                        
+                        if(isset($pit['validSince'])){
+
+                            if(abs(strlen($pit['validSince'])-strlen($pit['validSinceMax']))<4){ // both years or both months
+                                $pit['validSince'] = array($pit['validSince'], $pit['validSinceMax']);
+                            }
+
+                        }
                     }
-                    if(!preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['hasEnd'])){
-                        unset($pit['hasEnd']);
+
+                    unset($pit['validSinceMax']);
+                }
+
+                if(isset($pit['validUntilMin'])){
+                    if(preg_match("/^[0-9]{1,4}$/",$pit['validUntilMin']) || 
+                        preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['validUntilMin'])){ // valid year or date?
+                        $pit['validUntil'] = $pit['validUntilMin'];
                     }
+
+                    unset($pit['validUntilMin']);
+                }
+
+                if(isset($pit['validUntilMax'])){
+                    if(preg_match("/^[0-9]{1,4}$/",$pit['validUntilMax']) || 
+                        preg_match("/^[0-9]{1,4}-[0-9]{2}-[0-9]{2}$/",$pit['validUntilMax'])){ // valid year or date?
+                        
+                        if(isset($pit['validUntil'])){
+
+                            if(abs(strlen($pit['validUntil'])-strlen($pit['validUntilMax']))<4){ // both years or both months
+                                $pit['validUntil'] = array($pit['validUntil'], $pit['validUntilMax']);
+                            }
+
+                        }
+                    }
+
+                    unset($pit['validUntilMax']);
                 }
                 
 
@@ -967,7 +1009,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                             if($rec[$columnKeys[$item['column']]] != ""){           // only if related object has a value
                                 $relation = 	array(	'from' => $pitid,
                                                         'to' => $rec[$columnKeys[$item['column']]],
-                                                        'label' => $item['key']
+                                                        'type' => $item['key']
                                 );
                                 $relations[] = json_encode($relation,JSON_UNESCAPED_SLASHES);
                             }
