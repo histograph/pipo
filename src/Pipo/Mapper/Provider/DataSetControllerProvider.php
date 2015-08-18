@@ -482,7 +482,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $dataset = $app['dataset_service']->getDataset($id);
 
         $form = $this->getDescriptionForm($app, $dataset);
-
+        //die(print_r($dataset));
         return $app['twig']->render('datasets/describe.html.twig', array('set' => $dataset, 'form' => $form->createView()));
     }
 
@@ -498,6 +498,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
     {
         $data = $request->request->get('form');
         unset($data['_token']);
+
 
         if ($app['dataset_service']->storeDescription($data)) {
 
@@ -592,7 +593,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             ))
             ->add('sourceCreationDate', 'text', array(
                 'required'  => false,
-                'label'         => 'Source creation date (hasBeginning and hasEnd will be calculated from pits)',
+                'label'         => 'Dataset creation date (validSince and validUntil will be calculated from pits)',
                 'data' => $dataset['sourceCreationDate'],
                 'attr' => array('placeholder' => '2015-04-01')
             ))
