@@ -238,7 +238,7 @@ class HistographService {
     {
         $uri = $this->baseUri . self::SOURCES_ENTRY_POINT;
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
-
+        
         try {
             $response = $this->client->post(
                 $uri,

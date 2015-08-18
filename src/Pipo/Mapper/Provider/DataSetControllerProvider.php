@@ -640,11 +640,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
             return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
         }
 
-        $json = file_get_contents($app['export_dir'] . '/' . $id . '/source.json');
+        $json = file_get_contents($app['export_dir'] . '/' . $id . '/dataset.json');
         $response = $app['histograph_service']->saveHistographSource($id, $json);
 
         if (true === $response) {
-            $app['session']->getFlashBag()->set('alert', 'The source.json file has been sent to the API. It should show up any minute now.');
+            $app['session']->getFlashBag()->set('alert', 'The dataset.json file has been sent to the API. It should show up any minute now.');
         } else {
             $app['session']->getFlashBag()->set('error', 'Oops, something went wrong. The API returned the following error: ' . $response);
         }
@@ -765,7 +765,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
         unset($dataset['sourceCreationDate']);
 
         $sourcejson = json_encode($dataset,JSON_UNESCAPED_SLASHES);
-
+        
         $dir = $app['export_dir'] . '/' . $id;
         if (!file_exists($dir)) {
             mkdir($dir, 0777);
