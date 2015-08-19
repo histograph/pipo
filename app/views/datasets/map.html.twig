@@ -16,6 +16,17 @@
 
                 <table class="map table">
                     <tr>
+                        <th>URI (of pit in dataset itself - no relations!)</th>
+                        <td>
+                            <select class="form-control" name="prop-uri">
+                                <option value="">select column from csv</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.uriColumn is defined and properties.uriColumn == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
                         <th class="required">Pit Id</th>
                         <td>
 
@@ -99,48 +110,64 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>hasBeginning</th>
+                        <th>validSince (no range or minimal value)</th>
                         <td>
-                            <select class="form-control" name="prop-hasBeginning">
+                            <select class="form-control" name="prop-validSinceMin">
                                 <option value="">select column from csv</option>
                                 {% for col in columns %}
-                                    <option value="{{ col }}" {% if properties.hasBeginningColumn is defined and properties.hasBeginningColumn == col %}selected=""{% endif %}>{{ col }}</option>
+                                    <option value="{{ col }}" {% if properties.validSinceMinColumn is defined and properties.validSinceMinColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
                             </select>
                             <em>or give a yyyy-mm-dd formatted date for all records in set</em>
-                            <input class="form-control" type="text" value="{% if properties.hasBeginningText is defined %}{{ properties.hasBeginningText }}{% endif %}" name="prop-hasBeginning-text" placeholder="yyyy-dd-mm" />
+                            <input class="form-control" type="text" value="{% if properties.validSinceMinText is defined %}{{ properties.validSinceMinText }}{% endif %}" name="prop-validSinceMin-text" placeholder="'yyyy-dd-mm' or 'yyyy'" />
 
                         </td>
                     </tr>
                     <tr>
-                        <th>hasEnd</th>
+                        <th>validSince (if range, maximal value)</th>
                         <td>
-                            <select class="form-control" name="prop-hasEnd">
+                            <select class="form-control" name="prop-validSinceMax">
                                 <option value="">select column from csv</option>
                                 {% for col in columns %}
-                                    <option value="{{ col }}" {% if properties.hasEndColumn is defined and properties.hasEndColumn == col %}selected=""{% endif %}>{{ col }}</option>
+                                    <option value="{{ col }}" {% if properties.validSinceMaxColumn is defined and properties.validSinceMaxColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
                             </select>
                             <em>or give a yyyy-mm-dd formatted date for all records in set</em>
-                            <input class="form-control" type="text" value="{% if properties.hasEndText is defined %}{{ properties.hasEndText }}{% endif %}" name="prop-hasEnd-text" placeholder="yyyy-dd-mm" />
+                            <input class="form-control" type="text" value="{% if properties.validSinceMaxText is defined %}{{ properties.validSinceMaxText }}{% endif %}" name="prop-validSinceMax-text" placeholder="'yyyy-dd-mm' or 'yyyy'" />
+
                         </td>
                     </tr>
                     <tr>
-                        <th>uri (of pit in source itself - no relations!)</th>
+                        <th>validUntil  (no range or minimal value)</th>
                         <td>
-                            <select class="form-control" name="prop-uri">
+                            <select class="form-control" name="prop-validUntilMin">
                                 <option value="">select column from csv</option>
                                 {% for col in columns %}
-                                    <option value="{{ col }}" {% if properties.uriColumn is defined and properties.uriColumn == col %}selected=""{% endif %}>{{ col }}</option>
+                                    <option value="{{ col }}" {% if properties.validUntilMinColumn is defined and properties.validUntilMinColumn == col %}selected=""{% endif %}>{{ col }}</option>
                                 {% endfor %}
                             </select>
+                            <em>or give a yyyy-mm-dd formatted date for all records in set</em>
+                            <input class="form-control" type="text" value="{% if properties.validUntilMinText is defined %}{{ properties.validUntilMinText }}{% endif %}" name="prop-validUntilMin-text" placeholder="yyyy-dd-mm" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>validUntil (if range, maximal value)</th>
+                        <td>
+                            <select class="form-control" name="prop-validUntilMax">
+                                <option value="">select column from csv</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.validUntilMaxColumn is defined and properties.validUntilMaxColumn == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                            <em>or give a yyyy-mm-dd formatted date for all records in set</em>
+                            <input class="form-control" type="text" value="{% if properties.validUntilMaxText is defined %}{{ properties.validUntilMaxText }}{% endif %}" name="prop-validUntilMax-text" placeholder="yyyy-dd-mm" />
                         </td>
                     </tr>
                 </table>
 
                 <h3>Relations</h3>
 
-                <p>Relations should be mapped to a field with a uri or with a pit-uri from the Erfgeothesaurus</p>
+                <p>Relations should be mapped to a field with a URI or - only if the PiT you're mapping to does not have a URI, to the PiT-id from the Erfgeothesaurus</p>
 
                 <table class="map table">
                     {% for relation in relations %}
@@ -232,7 +259,8 @@
             <h1>Map dataset '{{ set.title }}'</h1>
 
             <ul>
-                <li>Make sure to provide a permanent id for your pits, so that relations to your pits won't get lost.</li>
+                <li>If your PiTs are identified by a URI, provide that URI and always reference you PiT by this URI</li>
+                <li>For PiTs without a URI, make sure to provide a permanent id and reference your PiT by this id</li>
                 <li>GeoJSON is the preferred way, but for practical reasons the importer will make GeoJSON from lat and long fields as well</li>
                 <li>Only provide geometry, lat or long if it originates from the source itself (e.g. if the dataset is a list of toponyms and the geometry comes from TGN, just make a hg:sameHgConcept relation to TGN uri's)</li>
                 <li>Remember, longitudes go from pole to pole and start counting in Greenwich, which makes the Netherlands somewhere in the 4-6 range. Messing this up might subject you to Somali Pirates</li>

@@ -76,7 +76,7 @@ class DatasetService {
      */
     public function storeDescription($data)
     { 
-
+        //die(print_r($data));
         return $this->db->update('datasets', $data, array(
             'id' => $data['id']
         ));
