@@ -35,6 +35,10 @@
                         <td>{{ csv.filename }}</td>
                         <td>{{ csv.created_on }}</td>
                         <td>
+                            <a href="{{ path('file-view-csv', { 'id': csv.id }) }}" title="View this csv"
+                               class="btn btn-xs btn-success"><i class="fa fa-search-plus"></i> </a>
+                            <a href="{{ path('file-download-csv', { 'id': csv.id }) }}" title="Download this csv"
+                               class="btn btn-xs btn-info"><i class="fa fa-download"></i> </a>
                             <a href="{{ path('api-delete-csv', { 'id': csv.id }) }}" title="Delete this csv"
                                class="btn btn-xs btn-danger delete-csv"><i class="fa fa-trash"></i> </a>
                         </td>
@@ -45,7 +49,6 @@
             </table>
 
         </div>
-
 
         <div class="col-md-4">
 

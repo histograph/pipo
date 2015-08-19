@@ -90,7 +90,6 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 'title'      => $data['title']
             ));
 
-
             return $app->redirect($app['url_generator']->generate('dataset-describe', array('id' => $data['id'])));
         }
 

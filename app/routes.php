@@ -7,6 +7,7 @@
 
 // a complete set of routes
 $app->mount('/sets', new \Pipo\Mapper\Provider\DataSetControllerProvider());
+$app->mount('/file', new \Pipo\Mapper\Provider\FileControllerProvider());
 $app->mount('/api', new \Pipo\Mapper\Provider\ApiControllerProvider());
 
 // Error route
