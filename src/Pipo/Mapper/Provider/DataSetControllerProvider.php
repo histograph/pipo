@@ -402,6 +402,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
             $relationTypes = $relationschema['properties']['type']['enum'];
         }
 
+        $validFors = array("existence","toponym","geometry");
+
         //print_r($pitTypes);
 
 
@@ -412,7 +414,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
             'data' => $maptypes['data'],
             'columns' => $columnNames,
             'relationtypes' => $relationTypes,
-            'pittypes' => $pitTypes
+            'pittypes' => $pitTypes,
+            'validFors' => $validFors
         ));
     }
 
@@ -907,7 +910,14 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
                     unset($pit['validUntilMax']);
                 }
-                
+
+                // if we've got a periodValidFor, move it to data
+                if(isset($pit['periodValidFor'])){
+                    if(in_array($pit['periodValidFor'], array("toponym","existence","geometry"))){
+                        $pit['data']['periodValidFor'] = $pit['periodValidFor'];
+                    }
+                    unset($pit['periodValidFor']);
+                }
 
                 if (isset($maptypes['data'])) {
                     foreach ($maptypes['data'] as $item) {

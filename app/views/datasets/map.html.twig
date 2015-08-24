@@ -10,7 +10,7 @@
 
             <form action="" method="post">
 
-                <h3>Properties</h3>
+                <h3>Name &amp; Id</h3>
 
                 <p>Properties are what makes a Pit a Pit. 'Pit Name' and 'Pit Id' are required.</p>
 
@@ -76,6 +76,10 @@
                             </select>
                         </td>
                     </tr>
+                </table>
+
+                <h3>Geometry</h3>
+                <table class="map table">
                     <tr>
                         <th>geometry (geojson!)</th>
                         <td>
@@ -88,7 +92,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>lattitude</th>
+                        <th>or give lattitude</th>
                         <td>
                             <select class="form-control" name="prop-lat">
                                 <option value="">select column from csv</option>
@@ -99,7 +103,7 @@
                         </td>
                     </tr>
                     <tr>
-                        <th>longitude</th>
+                        <th>and longitude</th>
                         <td>
                             <select class="form-control" name="prop-long">
                                 <option value="">select column from csv</option>
@@ -109,6 +113,11 @@
                             </select>
                         </td>
                     </tr>
+                </table>
+
+                <h3>Period</h3>
+                <table class="map table">
+                
                     <tr>
                         <th>validSince (no range or minimal value)</th>
                         <td>
@@ -161,6 +170,24 @@
                             </select>
                             <em>or give a yyyy-mm-dd formatted date for all records in set</em>
                             <input class="form-control" type="text" value="{% if properties.validUntilMaxText is defined %}{{ properties.validUntilMaxText }}{% endif %}" name="prop-validUntilMax-text" placeholder="yyyy-dd-mm" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>periodValidFor</th>
+                        <td>
+                            <select class="form-control" name="prop-periodValidFor">
+                                <option value="">select column from csv</option>
+                                {% for col in columns %}
+                                    <option value="{{ col }}" {% if properties.periodValidForColumn is defined and properties.periodValidForColumn == col %}selected=""{% endif %}>{{ col }}</option>
+                                {% endfor %}
+                            </select>
+                            <em>or select a periodValidFor for all records in set</em>
+                            <select class="form-control" name="prop-periodValidFor-text">
+                                <option value="">none</option>
+                                {% for validFor in validFors %}
+                                    <option value="{{ validFor }}" {% if properties.periodValidForText is defined and properties.periodValidForText == validFor %}selected=""{% endif %}>{{ validFor }}</option>
+                                {% endfor %}
+                            </select>
                         </td>
                     </tr>
                 </table>
