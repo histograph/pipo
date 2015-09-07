@@ -860,6 +860,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     unset($pit['long']);
                 }
 
+                /*
                 // check validity geojson (atlas vd verstedelijking named points twice in a row sometimes)
                 if(isset($pit['geometry']) && preg_match('/Polygon/', $pit['geometry'])){
                     preg_match_all("/\[[0-9.,]+\]/", $pit['geometry'], $matches);      
@@ -877,6 +878,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                         $pit['geometry'] = str_replace($value . "," . $value . "]", $newcoord . "," . $value . "]", $pit['geometry']);
                     }
                 }
+                */
 
 
                 // DATES
