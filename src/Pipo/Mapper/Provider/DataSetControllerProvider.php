@@ -851,12 +851,22 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     $pit['id'] = "";
                 }
 
+                // GEOMETRY
                 
                 // if lat & long and no geometry, make geojson from lat & long values
                 if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
                     $pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['long'] . ', ' .  $pit['lat']. '] }';
                     unset($pit['lat']);
                     unset($pit['long']);
+                }
+
+                // check validity geojson (atlas vd verstedelijking named points twice in a row sometimes)
+                if(isset($pit['geometry']) && preg_match('/Polygon/', $pit['geometry'])){
+                    preg_match_all("/\[[0-9.,]+\]/", $pit['geometry'], $matches);      
+                    $recurringpoints = array_unique( array_diff_assoc( $matches[0], array_unique( $matches[0] ) ) );
+                    foreach ($recurringpoints as $value) {
+                        $pit['geometry'] = str_replace($value . "," . $value, $value, $pit['geometry']);
+                    }
                 }
 
 
