@@ -865,7 +865,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     preg_match_all("/\[[0-9.,]+\]/", $pit['geometry'], $matches);      
                     $recurringpoints = array_unique( array_diff_assoc( $matches[0], array_unique( $matches[0] ) ) );
                     foreach ($recurringpoints as $value) {
-                        $pit['geometry'] = str_replace($value . "," . $value, $value, $pit['geometry']);
+                        $latlong = explode(",",str_replace(array("[","]"), "", $value));
+                        $newlat = (float)$latlong[0] + 0.000000000001;
+                        $newlong = (float)$latlong[1] + 0.000000000001;
+                        $newcoord = "[" . $newlat . "," . $newlong . "]";
+                        $pit['geometry'] = str_replace($value . "," . $value, $value . "," . $newcoord, $pit['geometry']);
                     }
                 }
 
