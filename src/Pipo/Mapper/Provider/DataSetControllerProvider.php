@@ -848,7 +848,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
                 // if there's a URI, we don't want an id
                 if(isset($pit['uri']) && strlen($pit['uri'])){
-                    $pit['id'] = "";
+                    unset($pit['id']);
                 }
 
                 // GEOMETRY
@@ -956,7 +956,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 }
                 
 
-                if($pit['id']!="" || $pit['uri']!=""){
+                if((isset($pit['id']) && $pit['id']!="") || (isset($pit['uri']) && $pit['uri']!="")){
                     $pits[] = json_encode($pit,JSON_UNESCAPED_SLASHES);
                 }
 
