@@ -956,7 +956,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 }
                 
 
-                if($pit['id']!=""){
+                if($pit['id']!="" || $pit['uri']!=""){
                     $pits[] = json_encode($pit,JSON_UNESCAPED_SLASHES);
                 }
 
