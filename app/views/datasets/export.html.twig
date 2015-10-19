@@ -62,10 +62,17 @@
 
             <p>Or... the danger button</p>
             <a href="{{ path('dataset-post-delete', { 'id': set.id }) }}" class="btn btn-danger">Delete the entire dataset from Histograph</a>
-            <p>This will remove everything: pits, relations and the dataset file! <strong>Use with caution.</strong></p>
+            <p>This will remove everything: pits, relations and the dataset file! <strong class="text-danger">Use with caution.</strong></p>
+
+            <hr/>
+
+            <h2>Backup to AWS</h2>
+            <p>
+                Once you're satisfied with the json and ndjson files, you can upload them to <strong>Amazon AWS</strong> so the histograh team  can use them too.
+            </p>
+
+            <a href="{{ path('upload-amazon', { 'id': set.id, 'file': 'all' }) }}" class="btn btn-primary">Backup to Amazon</a>
         </div>
     </div>
-
-
 
 {% endblock %}

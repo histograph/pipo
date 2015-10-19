@@ -9,6 +9,7 @@
 $app->mount('/sets', new \Pipo\Mapper\Provider\DataSetControllerProvider());
 $app->mount('/file', new \Pipo\Mapper\Provider\FileControllerProvider());
 $app->mount('/api', new \Pipo\Mapper\Provider\ApiControllerProvider());
+$app->mount('/aws', new \Pipo\Mapper\Provider\AmazonControllerProvider());
 
 // Error route
 $app->error(function (\Exception $e, $code) use ($app) {

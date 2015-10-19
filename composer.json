@@ -15,7 +15,9 @@
         "dflydev/stack-authentication": "1.0.*@dev",
         "dflydev/stack-firewall": "1.0.*@dev",
         "dflydev/stack-basic-authentication": "1.0.*@dev",
-        "stack/builder": "^1.0"
+        "stack/builder": "^1.0",
+        "wyrihaximus/sli-fly": "^2.0",
+        "league/flysystem-aws-s3-v2": "^1.0"
     },
     "scripts": {
         "post-install-cmd": "Pipo\\Silex\\Composer::install",

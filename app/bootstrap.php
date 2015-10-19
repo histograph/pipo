@@ -5,6 +5,8 @@
  */
 
 // CUSTOM services
+use Aws\S3\S3Client;
+
 $app['dataset_service'] = $app->share(function ($app) {
     return new \Pipo\Mapper\Service\DatasetService($app['db']);
 });
@@ -12,6 +14,30 @@ $app['histograph_service'] = $app->share(function ($app) {
     return new \Pipo\Mapper\Service\HistographService($app);
 });
 
+// FLY SYSTEM
+$AwsClient = S3Client::factory([
+    'key'    => $app['aws_key'],
+    'secret' => $app['aws_secret'],
+    'region' => $app['aws_region'],
+]);
+
+$app->register(new WyriHaximus\SliFly\FlysystemServiceProvider(), [
+    'flysystem.filesystems' => [
+        /*'local__DIR__' => [
+            'adapter' => 'League\Flysystem\Adapter\Local',
+            'args' => [
+                __DIR__,
+            ],
+        ],*/
+        'AWS' => [
+            'adapter' => 'League\Flysystem\AwsS3v2\AwsS3Adapter',
+            'args' => [
+                $AwsClient,
+                $app['aws_bucket']
+            ],
+        ],
+    ],
+]);
 
 // TWIG
 $app->register(new Silex\Provider\TwigServiceProvider(), array(
@@ -34,7 +60,6 @@ $app->register(new Silex\Provider\DoctrineServiceProvider());
 
 
 $app->register(new Silex\Provider\UrlGeneratorServiceProvider());
-
 
 // SYMFONY FORM THING
 $app->register(new Silex\Provider\ValidatorServiceProvider());
