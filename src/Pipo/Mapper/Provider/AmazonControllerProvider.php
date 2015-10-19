@@ -73,18 +73,18 @@ class AmazonControllerProvider implements ControllerProviderInterface
                     try {
                         // all files in a dir with the identifier of the dataset
                         $flySys->createDir($id);
-                        $flySys->put($id . '/' . $filename, file_get_contents($filepath));
+                        $flySys->put($id . '/' . $id . '.' .$filename, file_get_contents($filepath));
                     } catch (\Exception $e) {
+                        $app['session']->getFlashBag()->set('alert', 'Error uploading to AWS. Please try again later.');
                         $app['monolog']->addError('Failed to upload to AWS with the following error: ' . print_r($e->getMessage(), 1));
                     }
-
                 }
             }
-            $app['session']->getFlashBag()->set('alert', 'Upload naar AWS... ' . count($files2Upload) . ' bestand(en) gedaan.');
-
-            return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
+            $app['session']->getFlashBag()->set('alert', 'Uploading to AWS... ' . count($files2Upload) . ' file(s) done.');
+        } else {
+            $app['session']->getFlashBag()->set('alert', 'Nothing to upload. Probably because the json files do not exist (yet).');
         }
 
-        die;
+        return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
     }
 }
