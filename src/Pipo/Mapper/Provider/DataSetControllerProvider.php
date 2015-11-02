@@ -955,8 +955,12 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     }
                 }
                 
-
-                if((isset($pit['id']) && $pit['id']!="") || (isset($pit['uri']) && $pit['uri']!="")){
+                
+                if(
+                        ((isset($pit['id']) && $pit['id']!="") || (isset($pit['uri']) && $pit['uri']!="")) // must have uri or id
+                        &&                                                                                 // and
+                        (isset($pit['type']) && $pit['type']!="")                                          // type as well
+                    ){
                     $pits[] = json_encode($pit,JSON_UNESCAPED_SLASHES);
                 }
 
