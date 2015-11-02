@@ -824,6 +824,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
         }
 
+
         // attach the right values to the keys expected by Histograph and create ndjson
         $pits = array();
         $lastkey = count($columnNames)-1;
@@ -1023,6 +1024,10 @@ class DataSetControllerProvider implements ControllerProviderInterface
             $maptypes[$v['mapping_type']][$v['id']]['key'] = $v['the_key'];
         }
 
+
+        //print_r($maptypes);
+        
+
         // attach the right values to the keys expected by Histograph and create ndjson
         $relations = array();
         
@@ -1039,11 +1044,22 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 }
                 
                 if($pitid && $pitid != ""){                                         // no empty lines or pits without id's
-                    if(isset($maptypes['relation'])){                               // only if relation exists
+                    if(isset($maptypes['relation'])){                               // only if relations exists
                         foreach ($maptypes['relation'] as $item) {
-                            if($rec[$columnKeys[$item['column']]] != ""){           // only if related object has a value
-                                $relation = 	array(	'from' => $pitid,
-                                                        'to' => $rec[$columnKeys[$item['column']]],
+                            //print_r($columnKeys);
+                            if($item['column']!=""){
+                                if($rec[$columnKeys[$item['column']]] != ""){       // only if related object has a value
+                                    $relation =     array(  'from' => $pitid,
+                                                            'to' => $rec[$columnKeys[$item['column']]],
+                                                            'type' => $item['key']
+                                    );
+                                    $relations[] = json_encode($relation,JSON_UNESCAPED_SLASHES);
+                                }
+                            }
+                            if($item['text']!=""){
+
+                                $relation =     array(  'from' => $pitid,
+                                                        'to' => $item['text'],
                                                         'type' => $item['key']
                                 );
                                 $relations[] = json_encode($relation,JSON_UNESCAPED_SLASHES);
