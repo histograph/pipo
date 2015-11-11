@@ -855,9 +855,14 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 // GEOMETRY
                 
                 // if lat & long and no geometry, make geojson from lat & long values
-                if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']>0 && $pit['long']>0){
+                if(!isset($pit['geometry']) && isset($pit['lat']) && isset($pit['long']) && $pit['lat']!=0 && $pit['long']!=0){
                     $pit['geometry'] = '{ "type": "Point", "coordinates": [' . $pit['long'] . ', ' .  $pit['lat']. '] }';
+                    
+                }
+                if(isset($pit['lat'])){
                     unset($pit['lat']);
+                }
+                if(isset($pit['long'])){
                     unset($pit['long']);
                 }
 
