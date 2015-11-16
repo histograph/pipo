@@ -308,7 +308,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                 'constraints' =>  array(
                     new Assert\NotBlank(),
                     new Assert\File(array(
-                        'maxSize'       => '70M',
+                        'maxSize'       => '100M',
                         'mimeTypes'     => array('text/csv', 'text/plain', 'application/json'),
                     )),
                     new Assert\Type('file')
