@@ -2,18 +2,20 @@
 
 namespace Pipo\Mapper\Service;
 
+
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Exception\ParseException;
 use GuzzleHttp\Post\PostFile;
 use Symfony\Component\Config\Definition\Exception\Exception;
 use Symfony\Component\PropertyAccess\Exception\RuntimeException;
 
-class HistographService {
+class HistographService
+{
 
-    const API_TIMEOUT           = 50;
-    const API_CONNECT_TIMEOUT   = 50;
+    const API_TIMEOUT = 50;
+    const API_CONNECT_TIMEOUT = 50;
 
-    const SOURCES_ENTRY_POINT   = '/datasets'; //'/sources';
+    const SOURCES_ENTRY_POINT = '/datasets'; //'/sources';
 
     private $apiUser = null;
     private $apiPass = null;
@@ -52,11 +54,12 @@ class HistographService {
                 array(
                     'headers' => array(
                         'Authorization' => 'Basic ' . $auth,
-                        'Accept' => 'application/json',
+                        'Accept'        => 'application/json',
                     ),
-                    'body' => [
+                    'body'    => [
                         'file' => new PostFile('file', $json),
-                    ]
+                    ],
+                    'verify'  => false
                 ));
 
             if ($response->getStatusCode() === 200) {
@@ -76,7 +79,7 @@ class HistographService {
      */
     private function handleException(ClientException $e)
     {
-        return (string) $e->getResponse();
+        return (string)$e->getResponse();
         if ($e->hasResponse()) {
             try {
                 $json = $e->getResponse()->json();
@@ -84,11 +87,13 @@ class HistographService {
                 if (isset($json['details'])) {
                     return $json['message'] . ' Details: ' . print_r($json['details'], 1);
                 }
+
                 return $json['message'];
             } catch (ParseException $e) {
                 return print_r($e->getResponse(), 1);
             }
         }
+
         return 'The Histograph API returned an unknown error';
     }
 
@@ -109,14 +114,15 @@ class HistographService {
                 $uri,
                 array(
                     'headers' => array(
-                 //       'Content-type' => 'application/x-ndjson',
-                 //       'Mime-type' => 'application/x-ndjson',
+                        //       'Content-type' => 'application/x-ndjson',
+                        //       'Mime-type' => 'application/x-ndjson',
                         'Authorization' => 'Basic ' . $auth,
-                        'Accept' => 'application/json',
+                        'Accept'        => 'application/json',
                     ),
-                    'body' => [
+                    'body'    => [
                         'file' => new PostFile('file', $json),
-                    ]
+                    ],
+                    'verify'  => false
                 ));
 
             if ($response->getStatusCode() === 200) {
@@ -142,10 +148,11 @@ class HistographService {
             $response = $this->client->get(
                 $uri,
                 array(
-                    'headers'       => array(
+                    'headers' => array(
                         'Content-type' => 'application/json',
-                        'Accept' =>'application/json',
+                        'Accept'       => 'application/json',
                     ),
+                    'verify'  => false
                 ));
 
             if ($response->getStatusCode() === 200) { // source already exists, call update
@@ -161,6 +168,7 @@ class HistographService {
                     return $this->handleException($e);
                 }
             }
+
             return 'An unknown error occurred';
         };
     }
@@ -183,8 +191,9 @@ class HistographService {
                 array(
                     'headers' => array(
                         'Authorization' => 'Basic ' . $auth,
-                        'Accept' => 'application/json',
+                        'Accept'        => 'application/json',
                     ),
+                    'verify'  => false
                 ));
 
             if ($response->getStatusCode() === 200) {
@@ -213,12 +222,13 @@ class HistographService {
             $response = $this->client->patch(
                 $uri,
                 array(
-                    'headers'       => array(
-                        'Content-type' => 'application/json',
+                    'headers' => array(
+                        'Content-type'  => 'application/json',
                         'Authorization' => 'Basic ' . $auth,
-                        'Accept' =>'application/json',
+                        'Accept'        => 'application/json',
                     ),
-                    'body' => $json
+                    'body'    => $json,
+                    'verify'  => false
                 ));
 
             if ($response->getStatusCode() === 200) {
@@ -239,17 +249,18 @@ class HistographService {
     {
         $uri = $this->baseUri . self::SOURCES_ENTRY_POINT;
         $auth = base64_encode($this->getApiUser() . ":" . $this->getApiPass());
-        
+
         try {
             $response = $this->client->post(
                 $uri,
                 array(
-                    'headers'       => array(
-                        'Content-type' => 'application/json',
+                    'headers' => array(
+                        'Content-type'  => 'application/json',
                         'Authorization' => 'Basic ' . $auth,
-                        'Accept' =>'application/json',
+                        'Accept'        => 'application/json',
                     ),
-                    'body' => $json
+                    'body'    => $json,
+                    'verify'  => false
                 ));
 
             if ($response->getStatusCode() === 201) {
