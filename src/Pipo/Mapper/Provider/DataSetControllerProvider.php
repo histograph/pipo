@@ -83,7 +83,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             $data = $form->getData();
             $date = new \DateTime('now');
 
-            $data['id'] = replace(" ","",strtolower($data['id'])); // lowercase id!
+            $data['id'] = str_replace(" ","",strtolower($data['id'])); // lowercase id!
             
             /** @var \Doctrine\DBAL\Connection $db */
             $db = $app['db'];
