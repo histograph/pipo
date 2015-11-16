@@ -259,7 +259,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
 
                 // all done, now delete initial geojson file
                 unlink($app['upload_dir'] . DIRECTORY_SEPARATOR . $geojsonfilename);
-            }else{
+            } else {
                 $filename = time(). '.csv';
                 $originalName = $files['csvFile']->getClientOriginalName();
                 $files['csvFile']->move($app['upload_dir'], $filename);
@@ -285,8 +285,13 @@ class DataSetControllerProvider implements ControllerProviderInterface
             return $app->redirect($app['url_generator']->generate('dataset-csvs', array('id' => $id)));
         }
 
+        $dataset = $app['dataset_service']->getDataset($id);
+        $csvs = $app['dataset_service']->getCsvs($id);
+
         // of toon errors:
         return $app['twig']->render('datasets/csvs.html.twig', array(
+            'set' => $dataset,
+            'csvs' => $csvs,
             'form' => $form->createView()
         ));
     }
