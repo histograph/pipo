@@ -83,6 +83,8 @@ class DataSetControllerProvider implements ControllerProviderInterface
             $data = $form->getData();
             $date = new \DateTime('now');
 
+            $data['id'] = replace(" ","",strtolower($data['id'])); // lowercase id!
+            
             /** @var \Doctrine\DBAL\Connection $db */
             $db = $app['db'];
             $db->insert('datasets', array(
@@ -131,12 +133,12 @@ class DataSetControllerProvider implements ControllerProviderInterface
             ->createBuilder('form')
 
             ->add('id', 'text', array(
-                'label'         => 'Dataset id, preferably a recognizable string (name, abbreviation or acronym)',
+                'label'         => 'Dataset id, preferably a recognizable lowercase string (name, abbreviation or acronym)',
                 'required'  => true,
                 'constraints' =>  array(
                     new Assert\NotBlank(),
                     new Assert\Regex(array(
-                        'pattern'     => '/^[a-z0-9-]+$/i',
+                        'pattern'     => '/^[a-z0-9-]+$/',
                         'htmlPattern' => '^[a-z0-9-]+$',
                         'match'   => true,
                         'message' => 'Only lowercase characters and hyphens, no spaces, please',
@@ -505,8 +507,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
     {
         $data = $request->request->get('form');
         unset($data['_token']);
-
-
+        
         if ($app['dataset_service']->storeDescription($data)) {
 
             $app['session']->getFlashBag()->set('alert', 'Description has been saved!');
