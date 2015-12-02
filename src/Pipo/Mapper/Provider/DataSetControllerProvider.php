@@ -1047,8 +1047,10 @@ class DataSetControllerProvider implements ControllerProviderInterface
             
             if(implode(",",$rec) != ""){ // sorry, hack to skip empty rows (don't know where they come from)
                 foreach ($maptypes['property'] as $prop) {
-
-                    if($prop['key']=="id"){
+                    
+                    if($prop['key']=="uri" && $prop['column']!=""){
+                        $pitid = $rec[$columnKeys[$prop['column']]];
+                    }elseif($prop['key']=="id" && $prop['column']!=""){
                         $pitid = $rec[$columnKeys[$prop['column']]];
                     }
 
