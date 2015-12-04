@@ -1,8 +1,8 @@
 
 #Pipo - Pit Importer Part One
  
-The tool to create valid ndjson files to upload to the Histograph Core
- 
+Web application to create valid ndjson files to upload to the [Histograph Core](https://github.com/histograph). Histograph is a historical geocoder for search and standardization of place names throughout history, more on [histograph.io](http://histograph.io/). 
+
 
 ## INSTALLATION INSTRUCTIONS
 
@@ -23,7 +23,7 @@ If the last step failed do this manually:
 8. On going to production; change the run mode in `/web/index.php` to use the http_cache 
 
 
-## DOCUMENTATIE
+## DOCUMENTATIE (Dutch)
 
 ![data importer flowchart](images/importer.png)
 
