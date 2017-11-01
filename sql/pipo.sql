@@ -20,7 +20,7 @@ SET time_zone = "+00:00";
 -- Tabelstructuur voor tabel `csvfiles`
 --
 
-CREATE TABLE `csvfiles` (
+CREATE TABLE IF NOT EXISTS `csvfiles` (
 `id` int(11) NOT NULL,
   `dataset_id` varchar(255) NOT NULL,
   `filename` varchar(255) NOT NULL,
@@ -33,7 +33,7 @@ CREATE TABLE `csvfiles` (
 -- Tabelstructuur voor tabel `datasets`
 --
 
-CREATE TABLE `datasets` (
+CREATE TABLE IF NOT EXISTS `datasets` (
   `id` varchar(255) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text NOT NULL,
@@ -52,7 +52,7 @@ CREATE TABLE `datasets` (
 -- Tabelstructuur voor tabel `fieldmappings`
 --
 
-CREATE TABLE `fieldmappings` (
+CREATE TABLE IF NOT EXISTS `fieldmappings` (
 `id` int(11) NOT NULL,
   `dataset_id` varchar(255) NOT NULL,
   `mapping_type` enum('property','relation','data','') NOT NULL,
