@@ -23,7 +23,7 @@ class HistographService
     /**
      * @var string $baseUri Uri of the service to call
      */
-    private $baseUri = 'https://api.histograph.io';
+    private $baseUri = 'http://localhost:3000';
     //private $baseUri = 'http://histograph-lb-2072119452.eu-central-1.elb.amazonaws.com';
 
     protected $app;

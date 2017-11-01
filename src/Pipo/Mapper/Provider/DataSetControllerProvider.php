@@ -399,12 +399,12 @@ class DataSetControllerProvider implements ControllerProviderInterface
             "hg:Monument",
             "hg:Neighbourhood");
 
-        if($json = file_get_contents("https://api.histograph.io/schemas/pits")){
+        if($json = file_get_contents("http://localhost:3000/schemas/pits")){
             $pitschema = json_decode($json,true);
             $pitTypes = $pitschema['properties']['type']['enum'];
         }
 
-        if($json = file_get_contents("https://api.histograph.io/schemas/relations")){
+        if($json = file_get_contents("http://localhost:3000/schemas/relations")){
             $relationschema = json_decode($json,true);
             $relationTypes = $relationschema['properties']['type']['enum'];
         }
