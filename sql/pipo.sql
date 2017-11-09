@@ -57,7 +57,7 @@ CREATE TABLE IF NOT EXISTS `fieldmappings` (
   `dataset_id` varchar(255) NOT NULL,
   `mapping_type` enum('property','relation','data','') NOT NULL,
   `the_key` varchar(255) NOT NULL,
-  `value` varchar(255) NOT NULL,
+  `value` varchar(255),
   `value_in_field` varchar(255) NOT NULL
 ) ENGINE=InnoDB AUTO_INCREMENT=408 DEFAULT CHARSET=utf8;
 
