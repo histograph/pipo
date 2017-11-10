@@ -36,14 +36,14 @@ CREATE TABLE IF NOT EXISTS `csvfiles` (
 CREATE TABLE IF NOT EXISTS `datasets` (
   `id` varchar(255) NOT NULL,
   `title` varchar(255) NOT NULL,
-  `description` text NOT NULL,
-  `license` varchar(255) NOT NULL,
-  `author` text NOT NULL,
-  `website` varchar(255) NOT NULL,
-  `edits` text NOT NULL,
-  `editor` varchar(255) NOT NULL,
-  `use_csv_id` int(11) NOT NULL,
-  `sourceCreationDate` date NOT NULL
+  `description` text,
+  `license` varchar(255),
+  `author` text,
+  `website` varchar(255),
+  `edits` text,
+  `editor` varchar(255),
+  `use_csv_id` int(11),
+  `sourceCreationDate` date
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- --------------------------------------------------------
