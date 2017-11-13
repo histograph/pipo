@@ -644,12 +644,12 @@ class DataSetControllerProvider implements ControllerProviderInterface
      */
     public function postSource(Application $app, $id)
     {
-        if (!file_exists($app['export_dir'] . '/' . $id . '/dataset.json')) {
+        if (!file_exists($app['export_dir'] . '/' . $id . '/' . $id . '.dataset.json')) {
             $app['session']->getFlashBag()->set('alert', 'The dataset.json file does not exist yet. You have to create it before we can send it to the API.');
             return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
         }
 
-        $json = file_get_contents($app['export_dir'] . '/' . $id . '/dataset.json');
+        $json = file_get_contents($app['export_dir'] . '/' . $id . '/' . $id . '.dataset.json');
         $response = $app['histograph_service']->saveHistographSource($id, $json);
 
         if (true === $response) {
@@ -670,11 +670,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
      */
     public function postPits(Application $app, $id)
     {
-        if (!file_exists($app['export_dir'] . '/' . $id . '/pits.ndjson')) {
+        if (!file_exists($app['export_dir'] . '/' . $id . '/' . $id . '.pits.ndjson')) {
             $app['session']->getFlashBag()->set('alert', 'The pits.ndjson file does not exist yet. You have to create it before we can send it to the API.');
             return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
         }
-        $json = file_get_contents($app['export_dir'] . '/' . $id . '/pits.ndjson');
+        $json = file_get_contents($app['export_dir'] . '/' . $id . '/' . $id . '.pits.ndjson');
         $response = $app['histograph_service']->addPitsToHistographSource($id, $json);
 
         if (true === $response) {
@@ -695,11 +695,11 @@ class DataSetControllerProvider implements ControllerProviderInterface
      */
     public function postRelations(Application $app, $id)
     {
-        if (!file_exists($app['export_dir'] . '/' . $id . '/relations.ndjson')) {
+        if (!file_exists($app['export_dir'] . '/' . $id . '/' . $id . '.relations.ndjson')) {
             $app['session']->getFlashBag()->set('alert', 'The relations.ndjson file does not exist yet. You have to create it before we can send it to the API.');
             return $app->redirect($app['url_generator']->generate('dataset-export', array('id' => $id)));
         }
-        $json = file_get_contents($app['export_dir'] . '/' . $id . '/relations.ndjson');
+        $json = file_get_contents($app['export_dir'] . '/' . $id . '/' . $id . '.relations.ndjson');
         $response = $app['histograph_service']->addRelationsToHistographSource($id, $json);
 
         if (true === $response) {
@@ -742,14 +742,14 @@ class DataSetControllerProvider implements ControllerProviderInterface
         $dataset = $app['dataset_service']->getDataset($id);
 
         $files = array();
-        if(file_exists($app['export_dir'] . '/' . $id . '/dataset.json')){
-            $files['dataset'] = '/sets/files/' . $id . '/dataset.json';
+        if(file_exists($app['export_dir'] . '/' . $id . '/' . $id . '.dataset.json')){
+            $files['dataset'] = '/sets/files/' . $id . '/' . $id . '.dataset.json';
         }
-        if(file_exists($app['export_dir'] . '/' . $id . '/pits.ndjson')){
-            $files['pits'] = '/sets/files/' . $id . '/pits.ndjson';
+        if(file_exists($app['export_dir'] . '/' . $id . '/' . $id . '.pits.ndjson')){
+            $files['pits'] = '/sets/files/' . $id . '/' . $id . '.pits.ndjson';
         }
-        if(file_exists($app['export_dir'] . '/' . $id . '/relations.ndjson')){
-            $files['relations'] = '/sets/files/' . $id . '/relations.ndjson';
+        if(file_exists($app['export_dir'] . '/' . $id . '/' . $id . '.relations.ndjson')){
+            $files['relations'] = '/sets/files/' . $id . '/' . $id . '.relations.ndjson';
         }
 
 
@@ -780,7 +780,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             mkdir($dir, 0777);
         }
 
-        file_put_contents( $dir . '/dataset.json', $sourcejson);
+        file_put_contents( $dir . '/' .  $id . '.dataset.json', $sourcejson);
 
         $app['session']->getFlashBag()->set('alert', 'Er is een dataset.json aangemaakt of overschreven.');
 
@@ -987,7 +987,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             mkdir($dir, 0777);
         }
 
-        file_put_contents( $dir . '/pits.ndjson', $ndjson);
+        file_put_contents( $dir . '/' .  $id . '.pits.ndjson', $ndjson);
 
         $app['session']->getFlashBag()->set('alert', 'Er is een pits.ndjson aangemaakt of overschreven.');
 
@@ -1092,7 +1092,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
             mkdir($dir, 0777);
         }
 
-        file_put_contents( $dir . '/relations.ndjson', $ndjson);
+        file_put_contents( $dir . '/' .  $id . '.relations.ndjson', $ndjson);
 
         $app['session']->getFlashBag()->set('alert', 'Er is een relations.ndjson aangemaakt of overschreven.');
 
