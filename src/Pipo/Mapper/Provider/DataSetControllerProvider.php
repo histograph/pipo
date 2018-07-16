@@ -317,8 +317,7 @@ class DataSetControllerProvider implements ControllerProviderInterface
                     new Assert\File(array(
                         'maxSize'       => '100M',
                         'mimeTypes'     => array('text/csv', 'text/plain', 'application/json'),
-                    )),
-                    new Assert\Type('file')
+                    ))
                 )
             ))
             ->getForm()
